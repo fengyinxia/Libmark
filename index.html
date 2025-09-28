@@ -11,85 +11,192 @@
             box-sizing: border-box;
         }
 
+        :root {
+            /* 设计令牌 - 统一的颜色系统 */
+            --primary-color: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary-color: #f1f5f9;
+            --accent-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --background-light: #f8fafc;
+            --background-white: #ffffff;
+            
+            /* 间距系统 - 8px倍数 */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 40px;
+            --spacing-3xl: 48px;
+            
+            /* 圆角系统 */
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-2xl: 20px;
+            
+            /* 阴影系统 */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: var(--spacing-md);
+            color: var(--text-primary);
+            line-height: 1.6;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            background: var(--background-white);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-xl);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
             color: white;
-            padding: 30px;
+            padding: var(--spacing-3xl);
             text-align: center;
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-sm);
             font-weight: 300;
         }
 
         .header p {
-            font-size: 1.1em;
+            font-size: 1.1rem;
             opacity: 0.9;
         }
 
         .main-content {
-            padding: 40px;
+            padding: var(--spacing-2xl);
         }
 
         .upload-section {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        /* Tab切换界面 */
+        .tab-container {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .tab-buttons {
+            display: flex;
+            background: var(--background-light);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xs);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .tab-button.active {
+            background: var(--background-white);
+            color: var(--primary-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-button:hover:not(.active) {
+            color: var(--text-primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .upload-area {
-            border: 3px dashed #ddd;
-            border-radius: 15px;
-            padding: 60px 20px;
-            background: #fafafa;
-            transition: all 0.3s ease;
+            border: 3px dashed var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-3xl) var(--spacing-lg);
+            background: var(--background-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
         }
 
         .upload-area:hover {
-            border-color: #4facfe;
-            background: #f0f8ff;
+            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.05);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .upload-area.dragover {
-            border-color: #4facfe;
-            background: #e6f3ff;
+            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.1);
             transform: scale(1.02);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .upload-area.dragover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px dashed var(--primary-color);
+            border-radius: var(--radius-xl);
+            animation: dash 1s linear infinite;
+        }
+
+        @keyframes dash {
+            0% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: 20px; }
         }
 
         .upload-icon {
-            font-size: 4em;
-            color: #ddd;
-            margin-bottom: 20px;
+            font-size: 4rem;
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-lg);
         }
 
         .upload-text {
-            font-size: 1.2em;
-            color: #666;
-            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
         }
 
         .upload-hint {
-            color: #999;
-            font-size: 0.9em;
+            color: var(--text-muted);
+            font-size: 0.9rem;
         }
 
         #fileInput {
@@ -97,11 +204,12 @@
         }
 
         .file-info {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e8f5e8;
-            border-radius: 10px;
+            margin-top: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: var(--radius-lg);
             display: none;
+            border-left: 4px solid var(--success-color);
         }
 
         .file-info.show {
@@ -109,41 +217,70 @@
         }
 
         .file-name {
-            font-weight: bold;
-            color: #2d5a2d;
+            font-weight: 600;
+            color: var(--success-color);
         }
 
         .file-size {
-            color: #666;
-            font-size: 0.9em;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
         .parse-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 25px;
-            font-size: 1.1em;
+            padding: var(--spacing-md) var(--spacing-2xl);
+            border-radius: var(--radius-xl);
+            font-size: 1rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: var(--spacing-lg);
+            position: relative;
+            overflow: hidden;
         }
 
-        .parse-button:hover {
+        .parse-button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: var(--shadow-lg);
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%);
+        }
+
+        .parse-button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: var(--shadow-md);
         }
 
         .parse-button:disabled {
-            background: #ccc;
+            background: var(--text-muted);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+            opacity: 0.6;
+        }
+
+        /* 按钮涟漪效果 */
+        .parse-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .parse-button:active::before {
+            width: 300px;
+            height: 300px;
         }
 
         .result-section {
-            margin-top: 40px;
+            margin-top: var(--spacing-2xl);
             display: none;
         }
 
@@ -152,46 +289,46 @@
         }
 
         .result-header {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            background: var(--background-light);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-lg);
         }
 
         .result-title {
-            font-size: 1.5em;
-            color: #333;
-            margin-bottom: 10px;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
         }
 
         .result-status {
             display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--radius-xl);
+            font-size: 0.9rem;
+            font-weight: 600;
         }
 
         .status-success {
-            background: #d4edda;
-            color: #155724;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
         }
 
         .status-error {
-            background: #f8d7da;
-            color: #721c24;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
         }
 
         .status-info {
-            background: #d1ecf1;
-            color: #0c5460;
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-color);
         }
 
         .character-info {
             display: grid;
             grid-template-columns: 1fr 2fr;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
         }
 
         .character-avatar {
@@ -201,89 +338,123 @@
         .character-avatar img {
             max-width: 200px;
             max-height: 200px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .character-avatar img:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-xl);
         }
 
         .character-details {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
+            background: var(--background-light);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
         }
 
         .character-name {
-            font-size: 1.8em;
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: bold;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            font-weight: 700;
         }
 
         .character-field {
-            margin-bottom: 15px;
+            margin-bottom: var(--spacing-md);
         }
 
         .field-label {
-            font-weight: bold;
-            color: #555;
-            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .field-value {
-            color: #666;
-            line-height: 1.5;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            border-left: 4px solid #4facfe;
+            color: var(--text-primary);
+            line-height: 1.6;
+            background: var(--background-white);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary-color);
+            box-shadow: var(--shadow-sm);
         }
 
         .raw-data {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
+            background: var(--background-light);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            margin-top: var(--spacing-lg);
         }
 
         .raw-data-title {
-            font-size: 1.2em;
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            font-weight: 600;
         }
 
         .json-display {
-            background: #2d3748;
+            background: #1e293b;
             color: #e2e8f0;
-            padding: 20px;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.9rem;
             overflow-x: auto;
             white-space: pre-wrap;
             word-break: break-all;
+            line-height: 1.5;
+            box-shadow: var(--shadow-md);
+        }
+
+        .json-display .string {
+            color: #a7f3d0;
+        }
+
+        .json-display .number {
+            color: #fbbf24;
+        }
+
+        .json-display .boolean {
+            color: #f472b6;
+        }
+
+        .json-display .null {
+            color: #94a3b8;
+        }
+
+        .json-display .key {
+            color: #60a5fa;
+            font-weight: 600;
         }
 
         .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid #dc3545;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--error-color);
         }
 
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: var(--spacing-2xl);
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4facfe;
+            border: 4px solid var(--background-light);
+            border-top: 4px solid var(--primary-color);
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto var(--spacing-lg);
         }
 
         @keyframes spin {
@@ -292,15 +463,16 @@
         }
 
         .supported-formats {
-            background: #e3f2fd;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
+            background: rgba(6, 182, 212, 0.05);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            margin-top: var(--spacing-xl);
+            border: 1px solid rgba(6, 182, 212, 0.1);
         }
 
         .supported-formats h3 {
-            color: #1976d2;
-            margin-bottom: 10px;
+            color: var(--accent-color);
+            margin-bottom: var(--spacing-sm);
         }
 
         .format-list {
@@ -309,27 +481,98 @@
         }
 
         .format-list li {
-            padding: 5px 0;
-            color: #666;
+            padding: var(--spacing-xs) 0;
+            color: var(--text-secondary);
         }
 
         .format-list li:before {
             content: "✓ ";
-            color: #4caf50;
+            color: var(--success-color);
             font-weight: bold;
         }
 
+        /* Toast通知样式 */
+        .toast {
+            position: fixed;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            background: var(--background-white);
+            color: var(--text-primary);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            border-left-color: var(--error-color);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning-color);
+        }
+
         @media (max-width: 768px) {
-            .character-info {
-                grid-template-columns: 1fr;
+            body {
+                padding: var(--spacing-sm);
             }
             
             .main-content {
-                padding: 20px;
+                padding: var(--spacing-lg);
+            }
+            
+            .header {
+                padding: var(--spacing-xl);
             }
             
             .header h1 {
-                font-size: 2em;
+                font-size: 2rem;
+            }
+            
+            .character-info {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-lg);
+            }
+            
+            .character-avatar img {
+                max-width: 150px;
+                max-height: 150px;
+            }
+            
+            .parse-button {
+                padding: var(--spacing-md) var(--spacing-lg);
+                font-size: 1rem;
+                min-height: 44px; /* 移动端最小触摸目标 */
+            }
+            
+            .tab-button {
+                padding: var(--spacing-sm) var(--spacing-md);
+                font-size: 0.9rem;
+            }
+            
+            .upload-area {
+                padding: var(--spacing-xl) var(--spacing-md);
+            }
+            
+            .upload-icon {
+                font-size: 3rem;
+            }
+            
+            .toast {
+                right: var(--spacing-sm);
+                left: var(--spacing-sm);
+                transform: translateY(-100%);
+            }
+            
+            .toast.show {
+                transform: translateY(0);
             }
         }
     </style>
@@ -343,42 +586,48 @@
 
         <div class="main-content">
             <div class="upload-section">
-                <!-- URL输入区域 -->
-                <div class="url-input-section" style="margin-bottom: 30px;">
-                    <div class="url-input-container" style="display: flex; gap: 10px; align-items: center; max-width: 600px; margin: 0 auto;">
-                        <input type="url" id="urlInput" placeholder="输入PNG图片链接..." 
-                               style="flex: 1; padding: 12px 16px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; transition: border-color 0.3s ease;"
-                               onfocus="this.style.borderColor='#4facfe'" 
-                               onblur="this.style.borderColor='#ddd'">
-                        <button id="parseUrlButton" class="parse-button" style="margin: 0; padding: 12px 24px; white-space: nowrap;">
-                            🌐 解析链接
-                        </button>
+                <!-- Tab切换界面 -->
+                <div class="tab-container">
+                    <div class="tab-buttons" role="tablist" aria-label="选择输入方式">
+                        <button class="tab-button active" data-tab="url" role="tab" aria-selected="true" aria-controls="urlTab" id="urlTabButton">🌐 URL链接</button>
+                        <button class="tab-button" data-tab="upload" role="tab" aria-selected="false" aria-controls="uploadTab" id="uploadTabButton">📁 文件上传</button>
                     </div>
-                    <p style="margin-top: 10px; color: #666; font-size: 0.9em;">
-                        支持直接输入PNG图片的URL链接进行解析
-                    </p>
-                </div>
+                    
+                    <!-- URL输入区域 -->
+                    <div class="tab-content active" id="urlTab" role="tabpanel" aria-labelledby="urlTabButton">
+                        <div class="url-input-container" style="display: flex; gap: var(--spacing-sm); align-items: center; max-width: 600px; margin: 0 auto;">
+                            <input type="url" id="urlInput" placeholder="输入PNG图片链接..." 
+                                   style="flex: 1; padding: var(--spacing-md); border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem; outline: none; transition: border-color 0.3s ease;"
+                                   onfocus="this.style.borderColor='var(--primary-color)'" 
+                                   onblur="this.style.borderColor='var(--border-color)'"
+                                   aria-label="输入PNG图片URL链接">
+                            <button id="parseUrlButton" class="parse-button" style="margin: 0; padding: var(--spacing-md) var(--spacing-lg); white-space: nowrap;"
+                                    aria-label="解析URL链接">
+                                🌐 解析链接
+                            </button>
+                        </div>
+                        <p style="margin-top: var(--spacing-sm); color: var(--text-secondary); font-size: 0.9rem;">
+                            支持直接输入PNG图片的URL链接进行解析
+                        </p>
+                    </div>
+                    
+                    <!-- 文件上传区域 -->
+                    <div class="tab-content" id="uploadTab" role="tabpanel" aria-labelledby="uploadTabButton">
+                        <div class="upload-area" id="uploadArea" role="button" tabindex="0" aria-label="点击选择文件或拖拽PNG图片到此处">
+                            <div class="upload-icon" aria-hidden="true">📁</div>
+                            <div class="upload-text">点击选择文件或拖拽PNG图片到此处</div>
+                            <div class="upload-hint">支持 SillyTavern 角色卡格式 (V2/V3)</div>
+                        </div>
+                        <input type="file" id="fileInput" accept=".png" aria-label="选择PNG文件" />
+                        
+                        <div class="file-info" id="fileInfo" role="status" aria-live="polite">
+                            <div class="file-name" id="fileName"></div>
+                            <div class="file-size" id="fileSize"></div>
+                        </div>
 
-                <!-- 分隔线 -->
-                <div style="text-align: center; margin: 20px 0; color: #ccc; font-size: 14px;">
-                    <span style="background: white; padding: 0 20px;">或</span>
-                    <hr style="border: none; border-top: 1px solid #ddd; margin: -10px 0 0 0;">
+                        <button class="parse-button" id="parseButton" disabled aria-label="解析选中的角色卡文件">解析角色卡</button>
+                    </div>
                 </div>
-
-                <!-- 文件上传区域 -->
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">📁</div>
-                    <div class="upload-text">点击选择文件或拖拽PNG图片到此处</div>
-                    <div class="upload-hint">支持 SillyTavern 角色卡格式 (V2/V3)</div>
-                </div>
-                <input type="file" id="fileInput" accept=".png" />
-                
-                <div class="file-info" id="fileInfo">
-                    <div class="file-name" id="fileName"></div>
-                    <div class="file-size" id="fileSize"></div>
-                </div>
-
-                <button class="parse-button" id="parseButton" disabled>解析角色卡</button>
             </div>
 
             <div class="result-section" id="resultSection">
@@ -437,6 +686,12 @@
 
             bindEvents() {
                 this.uploadArea.addEventListener('click', () => this.fileInput.click());
+                this.uploadArea.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.fileInput.click();
+                    }
+                });
                 this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
                 this.parseButton.addEventListener('click', () => this.parseCharacterCard());
 
@@ -455,11 +710,71 @@
                 this.uploadArea.addEventListener('dragleave', (e) => this.handleDragLeave(e));
                 this.uploadArea.addEventListener('drop', (e) => this.handleDrop(e));
 
+                // Tab切换事件
+                this.bindTabEvents();
+
                 // 测试按钮
                 const testButton = document.getElementById('testButton');
                 if (testButton) {
                     testButton.addEventListener('click', () => this.runTest());
                 }
+
+                // 键盘快捷键
+                this.bindKeyboardShortcuts();
+            }
+
+            bindTabEvents() {
+                const tabButtons = document.querySelectorAll('.tab-button');
+                const tabContents = document.querySelectorAll('.tab-content');
+
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const targetTab = button.getAttribute('data-tab');
+                        
+                        // 移除所有active类和aria-selected
+                        tabButtons.forEach(btn => {
+                            btn.classList.remove('active');
+                            btn.setAttribute('aria-selected', 'false');
+                        });
+                        tabContents.forEach(content => content.classList.remove('active'));
+                        
+                        // 添加active类到当前按钮和对应内容
+                        button.classList.add('active');
+                        button.setAttribute('aria-selected', 'true');
+                        document.getElementById(targetTab + 'Tab').classList.add('active');
+                    });
+
+                    // 键盘导航支持
+                    button.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            button.click();
+                        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                            e.preventDefault();
+                            const currentIndex = Array.from(tabButtons).indexOf(button);
+                            const nextIndex = e.key === 'ArrowLeft' 
+                                ? (currentIndex - 1 + tabButtons.length) % tabButtons.length
+                                : (currentIndex + 1) % tabButtons.length;
+                            tabButtons[nextIndex].focus();
+                        }
+                    });
+                });
+            }
+
+            bindKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    // Ctrl+V 粘贴URL
+                    if (e.ctrlKey && e.key === 'v') {
+                        const activeTab = document.querySelector('.tab-button.active');
+                        if (activeTab && activeTab.getAttribute('data-tab') === 'url') {
+                            setTimeout(() => {
+                                if (this.urlInput.value.trim()) {
+                                    this.parseFromUrl();
+                                }
+                            }, 100);
+                        }
+                    }
+                });
             }
 
             handleDragOver(e) {
@@ -855,13 +1170,13 @@
                             <div class="character-field">
                                 <div class="field-label">💾 操作</div>
                                 <div class="field-value">
-                                    <button id="saveImageButton" class="parse-button" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); margin-right: 10px; padding: 8px 16px; font-size: 0.9em;">
+                                    <button id="saveImageButton" class="parse-button" style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); margin-right: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.9em;">
                                         📥 保存图片
                                     </button>
-                                    <button id="saveJsonButton" class="parse-button" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); margin-right: 10px; padding: 8px 16px; font-size: 0.9em;">
+                                    <button id="saveJsonButton" class="parse-button" style="background: linear-gradient(135deg, var(--accent-color) 0%, #0891b2 100%); margin-right: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.9em;">
                                         💾 保存JSON
                                     </button>
-                                    <button id="copyJsonButton" class="parse-button" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); padding: 8px 16px; font-size: 0.9em;">
+                                    <button id="copyJsonButton" class="parse-button" style="background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.9em;">
                                         📋 复制JSON
                                     </button>
                                 </div>
@@ -871,7 +1186,7 @@
                     
                     <div class="raw-data">
                         <div class="raw-data-title">📄 原始JSON数据</div>
-                        <div class="json-display">${JSON.stringify(characterData, null, 2)}</div>
+                        <div class="json-display" id="jsonDisplay">${this.syntaxHighlight(JSON.stringify(characterData, null, 2))}</div>
                     </div>
                 `;
 
@@ -879,6 +1194,28 @@
                 
                 // 绑定保存按钮事件
                 this.bindSaveEvents(characterData, imageInfo);
+                
+                // 绑定头像点击事件
+                this.bindAvatarClick();
+            }
+
+            syntaxHighlight(json) {
+                json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                    let cls = 'number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'key';
+                        } else {
+                            cls = 'string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
             }
 
             escapeHtml(text) {
@@ -901,6 +1238,30 @@
             showSuccess(message = '解析成功') {
                 this.resultStatus.textContent = message;
                 this.resultStatus.className = 'result-status status-success';
+                this.showToast(message, 'success');
+            }
+
+            showToast(message, type = 'success') {
+                // 移除现有的toast
+                const existingToast = document.querySelector('.toast');
+                if (existingToast) {
+                    existingToast.remove();
+                }
+
+                // 创建新的toast
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                // 显示toast
+                setTimeout(() => toast.classList.add('show'), 100);
+
+                // 自动隐藏
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
             }
 
             showError(message) {
@@ -913,6 +1274,7 @@
                 this.resultStatus.textContent = '解析失败';
                 this.resultStatus.className = 'result-status status-error';
                 this.resultSection.classList.add('show');
+                this.showToast('解析失败: ' + message, 'error');
             }
 
             showDetailedError(result) {
@@ -1082,6 +1444,57 @@
                 }
             }
 
+            bindAvatarClick() {
+                const avatarImg = document.querySelector('.character-avatar img');
+                if (avatarImg) {
+                    avatarImg.addEventListener('click', () => this.showImageModal(avatarImg.src));
+                }
+            }
+
+            showImageModal(imageSrc) {
+                // 创建模态框
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 2000;
+                    cursor: pointer;
+                `;
+
+                const img = document.createElement('img');
+                img.src = imageSrc;
+                img.style.cssText = `
+                    max-width: 90%;
+                    max-height: 90%;
+                    border-radius: var(--radius-lg);
+                    box-shadow: var(--shadow-xl);
+                `;
+
+                modal.appendChild(img);
+                document.body.appendChild(modal);
+
+                // 点击关闭
+                modal.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+
+                // ESC键关闭
+                const handleEsc = (e) => {
+                    if (e.key === 'Escape') {
+                        document.body.removeChild(modal);
+                        document.removeEventListener('keydown', handleEsc);
+                    }
+                };
+                document.addEventListener('keydown', handleEsc);
+            }
+
             async saveImage(characterData, imageInfo) {
                 try {
                     let imageBlob;
@@ -1114,10 +1527,10 @@
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
 
-                    this.showSuccess('图片已保存！');
+                    this.showToast('图片已保存！', 'success');
                 } catch (error) {
                     console.error('保存图片失败:', error);
-                    this.showError('保存图片失败: ' + error.message);
+                    this.showToast('保存图片失败: ' + error.message, 'error');
                 }
             }
 
@@ -1135,10 +1548,10 @@
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
 
-                    this.showSuccess('JSON文件已保存！');
+                    this.showToast('JSON文件已保存！', 'success');
                 } catch (error) {
                     console.error('保存JSON失败:', error);
-                    this.showError('保存JSON失败: ' + error.message);
+                    this.showToast('保存JSON失败: ' + error.message, 'error');
                 }
             }
 
@@ -1146,7 +1559,7 @@
                 try {
                     const jsonString = JSON.stringify(characterData, null, 2);
                     await navigator.clipboard.writeText(jsonString);
-                    this.showSuccess('JSON已复制到剪贴板！');
+                    this.showToast('JSON已复制到剪贴板！', 'success');
                 } catch (error) {
                     console.error('复制JSON失败:', error);
                     // 回退方案
@@ -1156,7 +1569,7 @@
                     textArea.select();
                     document.execCommand('copy');
                     document.body.removeChild(textArea);
-                    this.showSuccess('JSON已复制到剪贴板！');
+                    this.showToast('JSON已复制到剪贴板！', 'success');
                 }
             }
 
