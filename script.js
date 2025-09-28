@@ -47,6 +47,11 @@ class CharacterCardParser {
         // Tab切换事件
         this.bindTabEvents();
 
+        // 测试按钮
+        const testButton = document.getElementById('testButton');
+        if (testButton) {
+            testButton.addEventListener('click', () => this.runTest());
+        }
 
         // 键盘快捷键
         this.bindKeyboardShortcuts();
@@ -180,12 +185,15 @@ class CharacterCardParser {
     }
 
     async parseFromUrl() {
-        const url = this.urlInput.value.trim();
+        let url = this.urlInput.value.trim();
         
         if (!url) {
             this.showError('请输入图片URL');
             return;
         }
+
+        // 清理Discord链接参数，避免WebP格式问题
+        url = this.cleanDiscordUrl(url);
 
         // 简单的URL验证
         try {
@@ -220,6 +228,7 @@ class CharacterCardParser {
                 // 创建图片信息对象
                 const imageInfo = {
                     url: url,
+                    originalUrl: this.urlInput.value.trim(), // 保存原始URL
                     size: arrayBuffer.byteLength,
                     contentType: response.headers.get('content-type') || 'image/png',
                     fileName: this.getFilenameFromUrl(url) || 'character.png',
@@ -267,14 +276,9 @@ class CharacterCardParser {
             
             if (ccv3Chunk) {
                 console.log('找到V3格式数据');
-                try {
-                    const jsonData = this.base64ToUtf8(ccv3Chunk.text);
-                    console.log('V3 JSON数据预览:', jsonData.substring(0, 200) + '...');
-                    return JSON.parse(jsonData);
-                } catch (parseError) {
-                    console.error('V3格式JSON解析失败:', parseError);
-                    throw new Error('V3格式数据解析失败: ' + parseError.message);
-                }
+                const jsonData = this.base64ToUtf8(ccv3Chunk.text);
+                console.log('V3 JSON数据预览:', jsonData.substring(0, 200) + '...');
+                return JSON.parse(jsonData);
             }
 
             // 查找V2格式 (chara)
@@ -284,14 +288,9 @@ class CharacterCardParser {
             
             if (charaChunk) {
                 console.log('找到V2格式数据');
-                try {
-                    const jsonData = this.base64ToUtf8(charaChunk.text);
-                    console.log('V2 JSON数据预览:', jsonData.substring(0, 200) + '...');
-                    return JSON.parse(jsonData);
-                } catch (parseError) {
-                    console.error('V2格式JSON解析失败:', parseError);
-                    throw new Error('V2格式数据解析失败: ' + parseError.message);
-                }
+                const jsonData = this.base64ToUtf8(charaChunk.text);
+                console.log('V2 JSON数据预览:', jsonData.substring(0, 200) + '...');
+                return JSON.parse(jsonData);
             }
 
             throw new Error('未找到有效的角色卡数据');
@@ -501,7 +500,10 @@ class CharacterCardParser {
                             <strong>来源:</strong> ${imageInfo.url ? 'URL链接' : '本地文件'}<br>
                             <strong>大小:</strong> ${this.formatFileSize(imageInfo.size || 0)}<br>
                             ${imageInfo.contentType ? `<strong>类型:</strong> ${imageInfo.contentType}<br>` : ''}
-                            ${imageInfo.fileName ? `<strong>文件名:</strong> ${imageInfo.fileName}` : ''}
+                            ${imageInfo.fileName ? `<strong>文件名:</strong> ${imageInfo.fileName}<br>` : ''}
+                            ${imageInfo.originalUrl && imageInfo.originalUrl !== imageInfo.url ? 
+                                `<strong>原始链接:</strong> ${this.escapeHtml(imageInfo.originalUrl)}<br>
+                                 <strong>已清理:</strong> 自动移除 &format=webp&quality=lossless 参数` : ''}
                         </div>
                     </div>
                     ` : ''}
@@ -908,6 +910,31 @@ class CharacterCardParser {
             document.execCommand('copy');
             document.body.removeChild(textArea);
             this.showToast('JSON已复制到剪贴板！', 'success');
+        }
+    }
+
+    cleanDiscordUrl(url) {
+        try {
+            // 检查是否是Discord链接
+            if (url.includes('discordapp.net') || url.includes('discord.com')) {
+                // 只移除 &format=webp&quality=lossless 参数
+                let cleanUrl = url;
+                
+                // 移除 &format=webp&quality=lossless
+                cleanUrl = cleanUrl.replace(/&format=webp&quality=lossless/g, '');
+                
+                // 如果URL以 & 结尾，也移除它
+                cleanUrl = cleanUrl.replace(/&$/, '');
+                
+                if (cleanUrl !== url) {
+                    console.log('清理Discord URL参数:', url, '->', cleanUrl);
+                }
+                return cleanUrl;
+            }
+            return url;
+        } catch (error) {
+            console.warn('URL清理失败，使用原始URL:', error);
+            return url;
         }
     }
 

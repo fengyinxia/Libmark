@@ -455,6 +455,34 @@ body {
     100% { transform: rotate(360deg); }
 }
 
+.supported-formats {
+    background: rgba(6, 182, 212, 0.05);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    margin-top: var(--spacing-xl);
+    border: 1px solid rgba(6, 182, 212, 0.1);
+}
+
+.supported-formats h3 {
+    color: var(--accent-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+.format-list {
+    list-style: none;
+    padding: 0;
+}
+
+.format-list li {
+    padding: var(--spacing-xs) 0;
+    color: var(--text-secondary);
+}
+
+.format-list li:before {
+    content: "✓ ";
+    color: var(--success-color);
+    font-weight: bold;
+}
 
 /* Toast通知样式 */
 .toast {
