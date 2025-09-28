@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SillyTavern 角色卡解析器 - 纯前端版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 60px 20px;
+            background: #fafafa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            border-color: #4facfe;
+            background: #f0f8ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #4facfe;
+            background: #e6f3ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: #2d5a2d;
+        }
+
+        .file-size {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .parse-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .parse-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .parse-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-section {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .character-info {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .character-avatar {
+            text-align: center;
+        }
+
+        .character-avatar img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .character-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .character-name {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .character-field {
+            margin-bottom: 15px;
+        }
+
+        .field-label {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .field-value {
+            color: #666;
+            line-height: 1.5;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .raw-data {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .raw-data-title {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .json-display {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .supported-formats {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .supported-formats h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .format-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .format-list li {
+            padding: 5px 0;
+            color: #666;
+        }
+
+        .format-list li:before {
+            content: "✓ ";
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .character-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 SillyTavern 角色卡解析器</h1>
+            <p>纯前端版本 - 上传角色卡PNG图片或输入URL链接，解析并查看角色信息</p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <!-- URL输入区域 -->
+                <div class="url-input-section" style="margin-bottom: 30px;">
+                    <div class="url-input-container" style="display: flex; gap: 10px; align-items: center; max-width: 600px; margin: 0 auto;">
+                        <input type="url" id="urlInput" placeholder="输入PNG图片链接..." 
+                               style="flex: 1; padding: 12px 16px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; transition: border-color 0.3s ease;"
+                               onfocus="this.style.borderColor='#4facfe'" 
+                               onblur="this.style.borderColor='#ddd'">
+                        <button id="parseUrlButton" class="parse-button" style="margin: 0; padding: 12px 24px; white-space: nowrap;">
+                            🌐 解析链接
+                        </button>
+                    </div>
+                    <p style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                        支持直接输入PNG图片的URL链接进行解析
+                    </p>
+                </div>
+
+                <!-- 分隔线 -->
+                <div style="text-align: center; margin: 20px 0; color: #ccc; font-size: 14px;">
+                    <span style="background: white; padding: 0 20px;">或</span>
+                    <hr style="border: none; border-top: 1px solid #ddd; margin: -10px 0 0 0;">
+                </div>
+
+                <!-- 文件上传区域 -->
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">点击选择文件或拖拽PNG图片到此处</div>
+                    <div class="upload-hint">支持 SillyTavern 角色卡格式 (V2/V3)</div>
+                </div>
+                <input type="file" id="fileInput" accept=".png" />
+                
+                <div class="file-info" id="fileInfo">
+                    <div class="file-name" id="fileName"></div>
+                    <div class="file-size" id="fileSize"></div>
+                </div>
+
+                <button class="parse-button" id="parseButton" disabled>解析角色卡</button>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <div class="result-header">
+                    <div class="result-title">解析结果</div>
+                    <div class="result-status" id="resultStatus"></div>
+                </div>
+                <div id="resultContent"></div>
+            </div>
+
+            <div class="supported-formats">
+                <h3>📋 支持的格式</h3>
+                <ul class="format-list">
+                    <li>SillyTavern V2 格式 (chara_card_v2)</li>
+                    <li>SillyTavern V3 格式 (chara_card_v3)</li>
+                    <li>PNG 图片格式</li>
+                    <li>JPEG/WebP/GIF/BMP 图片格式</li>
+                    <li>自动格式转换支持</li>
+                    <li>包含角色元数据的图片</li>
+                    <li>支持URL链接解析</li>
+                    <li>支持本地文件上传</li>
+                </ul>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <button id="testButton" class="parse-button" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
+                        🧪 测试解析器
+                    </button>
+                    <p style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                        点击测试按钮查看解析器状态和调试信息
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CharacterCardParser {
+            constructor() {
+                this.initializeElements();
+                this.bindEvents();
+            }
+
+            initializeElements() {
+                this.uploadArea = document.getElementById('uploadArea');
+                this.fileInput = document.getElementById('fileInput');
+                this.fileInfo = document.getElementById('fileInfo');
+                this.fileName = document.getElementById('fileName');
+                this.fileSize = document.getElementById('fileSize');
+                this.parseButton = document.getElementById('parseButton');
+                this.resultSection = document.getElementById('resultSection');
+                this.resultStatus = document.getElementById('resultStatus');
+                this.resultContent = document.getElementById('resultContent');
+                this.urlInput = document.getElementById('urlInput');
+                this.parseUrlButton = document.getElementById('parseUrlButton');
+            }
+
+            bindEvents() {
+                this.uploadArea.addEventListener('click', () => this.fileInput.click());
+                this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+                this.parseButton.addEventListener('click', () => this.parseCharacterCard());
+
+                // URL解析按钮
+                this.parseUrlButton.addEventListener('click', () => this.parseFromUrl());
+
+                // URL输入框回车事件
+                this.urlInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.parseFromUrl();
+                    }
+                });
+
+                // 拖拽事件
+                this.uploadArea.addEventListener('dragover', (e) => this.handleDragOver(e));
+                this.uploadArea.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+                this.uploadArea.addEventListener('drop', (e) => this.handleDrop(e));
+
+                // 测试按钮
+                const testButton = document.getElementById('testButton');
+                if (testButton) {
+                    testButton.addEventListener('click', () => this.runTest());
+                }
+            }
+
+            handleDragOver(e) {
+                e.preventDefault();
+                this.uploadArea.classList.add('dragover');
+            }
+
+            handleDragLeave(e) {
+                e.preventDefault();
+                this.uploadArea.classList.remove('dragover');
+            }
+
+            handleDrop(e) {
+                e.preventDefault();
+                this.uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    this.handleFile(files[0]);
+                }
+            }
+
+            handleFileSelect(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    this.handleFile(file);
+                }
+            }
+
+            handleFile(file) {
+                if (!file.type.startsWith('image/png')) {
+                    alert('请选择PNG格式的图片文件');
+                    return;
+                }
+
+                this.currentFile = file;
+                this.fileName.textContent = file.name;
+                this.fileSize.textContent = this.formatFileSize(file.size);
+                this.fileInfo.classList.add('show');
+                this.parseButton.disabled = false;
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            async parseCharacterCard() {
+                if (!this.currentFile) return;
+
+                this.showLoading();
+                
+                try {
+                    const arrayBuffer = await this.currentFile.arrayBuffer();
+                    const characterData = this.extractCharacterData(arrayBuffer);
+                    
+                    if (characterData) {
+                        // 保存原始图片数据用于后续保存
+                        this.originalImageData = this.currentFile;
+                        this.originalImageFilename = this.currentFile.name;
+                        
+                        this.displayCharacterInfo(characterData);
+                        this.showSuccess();
+                    } else {
+                        this.showError('未找到有效的角色卡数据');
+                    }
+                } catch (error) {
+                    console.error('解析错误:', error);
+                    this.showError('解析失败: ' + error.message);
+                }
+            }
+
+            async parseFromUrl() {
+                const url = this.urlInput.value.trim();
+                
+                if (!url) {
+                    this.showError('请输入图片URL');
+                    return;
+                }
+
+                // 简单的URL验证
+                try {
+                    new URL(url);
+                } catch {
+                    this.showError('请输入有效的URL');
+                    return;
+                }
+
+                this.showLoading();
+                
+                try {
+                    // 直接使用fetch获取图片，然后解析
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        mode: 'cors',
+                        cache: 'no-cache'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const arrayBuffer = await response.arrayBuffer();
+                    const characterData = this.extractCharacterData(arrayBuffer);
+                    
+                    if (characterData) {
+                        // 保存原始图片数据用于后续保存
+                        this.originalImageData = new Blob([arrayBuffer], { type: 'image/png' });
+                        this.originalImageFilename = this.getFilenameFromUrl(url) || 'character.png';
+                        
+                        // 创建图片信息对象
+                        const imageInfo = {
+                            url: url,
+                            size: arrayBuffer.byteLength,
+                            contentType: response.headers.get('content-type') || 'image/png',
+                            fileName: this.getFilenameFromUrl(url) || 'character.png',
+                            hasCharacterData: true
+                        };
+                        
+                        this.displayCharacterInfo(characterData, imageInfo);
+                        this.showSuccess();
+                    } else {
+                        this.showError('未找到有效的角色卡数据');
+                    }
+                } catch (error) {
+                    console.error('URL解析错误:', error);
+                    this.showError('网络错误: ' + error.message);
+                }
+            }
+
+            extractCharacterData(arrayBuffer) {
+                try {
+                    // 将ArrayBuffer转换为Uint8Array
+                    const data = new Uint8Array(arrayBuffer);
+                    
+                    // 首先尝试使用更简单的方法查找文本块
+                    const textChunks = this.findTextChunksSimple(data);
+                    
+                    if (textChunks.length === 0) {
+                        // 如果简单方法失败，尝试完整解析
+                        const textChunks2 = this.extractTextChunks(data);
+                        if (textChunks2.length === 0) {
+                            throw new Error('PNG文件中未找到文本块');
+                        }
+                        textChunks.push(...textChunks2);
+                    }
+
+                    console.log('找到的文本块:', textChunks.map(chunk => ({
+                        keyword: chunk.keyword,
+                        textLength: chunk.text.length,
+                        textPreview: chunk.text.substring(0, 50) + '...'
+                    })));
+
+                    // 优先查找V3格式 (ccv3)
+                    const ccv3Chunk = textChunks.find(chunk => 
+                        chunk.keyword.toLowerCase() === 'ccv3'
+                    );
+                    
+                    if (ccv3Chunk) {
+                        console.log('找到V3格式数据');
+                        const jsonData = this.base64ToUtf8(ccv3Chunk.text);
+                        console.log('V3 JSON数据预览:', jsonData.substring(0, 200) + '...');
+                        return JSON.parse(jsonData);
+                    }
+
+                    // 查找V2格式 (chara)
+                    const charaChunk = textChunks.find(chunk => 
+                        chunk.keyword.toLowerCase() === 'chara'
+                    );
+                    
+                    if (charaChunk) {
+                        console.log('找到V2格式数据');
+                        const jsonData = this.base64ToUtf8(charaChunk.text);
+                        console.log('V2 JSON数据预览:', jsonData.substring(0, 200) + '...');
+                        return JSON.parse(jsonData);
+                    }
+
+                    throw new Error('未找到有效的角色卡数据');
+                } catch (error) {
+                    console.error('提取角色数据时出错:', error);
+                    throw error;
+                }
+            }
+
+            findTextChunksSimple(data) {
+                const chunks = [];
+                const dataString = new TextDecoder('latin1').decode(data);
+                
+                // 查找tEXt块标记
+                let pos = 0;
+                while (pos < dataString.length) {
+                    const tEXtPos = dataString.indexOf('tEXt', pos);
+                    if (tEXtPos === -1) break;
+                    
+                    // 向前查找块长度
+                    const lengthStart = tEXtPos - 4;
+                    if (lengthStart < 0) {
+                        pos = tEXtPos + 4;
+                        continue;
+                    }
+                    
+                    const lengthBytes = data.slice(lengthStart, tEXtPos);
+                    const length = (lengthBytes[0] << 24) | (lengthBytes[1] << 16) | (lengthBytes[2] << 8) | lengthBytes[3];
+                    
+                    if (length > 0 && length < 1000000) { // 合理的长度限制
+                        const dataStart = tEXtPos + 4;
+                        const dataEnd = dataStart + length;
+                        
+                        if (dataEnd <= data.length) {
+                            const chunkData = data.slice(dataStart, dataEnd);
+                            
+                            // 查找null终止符
+                            let nullPos = 0;
+                            while (nullPos < chunkData.length && chunkData[nullPos] !== 0) {
+                                nullPos++;
+                            }
+                            
+                            if (nullPos < chunkData.length) {
+                                const keyword = new TextDecoder('utf-8').decode(chunkData.slice(0, nullPos));
+                                const textData = new TextDecoder('utf-8').decode(chunkData.slice(nullPos + 1));
+                                
+                                chunks.push({
+                                    keyword: keyword,
+                                    text: textData
+                                });
+                            }
+                        }
+                    }
+                    
+                    pos = tEXtPos + 4;
+                }
+                
+                return chunks;
+            }
+
+            extractTextChunks(data) {
+                const chunks = [];
+                let offset = 8; // 跳过PNG文件头
+
+                while (offset < data.length - 12) {
+                    // 读取块长度
+                    const length = this.readUint32(data, offset);
+                    offset += 4;
+
+                    // 读取块类型
+                    const type = this.readString(data, offset, 4);
+                    offset += 4;
+
+                    // 如果是tEXt块，解析它
+                    if (type === 'tEXt') {
+                        // 找到null终止符的位置
+                        let nullPos = offset;
+                        while (nullPos < offset + length && data[nullPos] !== 0) {
+                            nullPos++;
+                        }
+                        
+                        const keyword = this.readString(data, offset, nullPos - offset);
+                        const textData = this.readString(data, nullPos + 1, length - (nullPos - offset) - 1);
+                        
+                        chunks.push({
+                            keyword: keyword,
+                            text: textData
+                        });
+                        
+                        offset += length;
+                    } else {
+                        // 跳过其他类型的块
+                        offset += length;
+                    }
+                    
+                    // 跳过CRC
+                    offset += 4;
+                }
+
+                return chunks;
+            }
+
+            readUint32(data, offset) {
+                return (data[offset] << 24) | 
+                       (data[offset + 1] << 16) | 
+                       (data[offset + 2] << 8) | 
+                       data[offset + 3];
+            }
+
+            readString(data, offset, length) {
+                let result = '';
+                for (let i = 0; i < length; i++) {
+                    if (data[offset + i] === 0) break; // 遇到null终止符停止
+                    result += String.fromCharCode(data[offset + i]);
+                }
+                return result;
+            }
+
+            base64ToUtf8(base64) {
+                try {
+                    // 清理Base64字符串，移除可能的空白字符
+                    const cleanBase64 = base64.replace(/\s/g, '');
+                    
+                    if (cleanBase64.length === 0) {
+                        throw new Error('Base64字符串为空');
+                    }
+                    
+                    const binaryString = atob(cleanBase64);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    
+                    const result = new TextDecoder('utf-8').decode(bytes);
+                    console.log('Base64解码结果长度:', result.length);
+                    console.log('Base64解码结果预览:', result.substring(0, 100) + '...');
+                    
+                    return result;
+                } catch (error) {
+                    console.error('Base64解码失败:', error);
+                    console.error('原始Base64数据:', base64.substring(0, 100) + '...');
+                    throw new Error('Base64解码失败: ' + error.message);
+                }
+            }
+
+            displayCharacterInfo(characterData, imageInfo = null) {
+                const isV3 = characterData.spec === 'chara_card_v3';
+                const data = characterData.data || characterData;
+
+                // 确定图片源
+                let imageSrc = '';
+                if (imageInfo && imageInfo.url) {
+                    imageSrc = imageInfo.url;
+                } else if (this.currentFile) {
+                    imageSrc = URL.createObjectURL(this.currentFile);
+                } else {
+                    imageSrc = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7lm77niYfmlKDovb3lpLHotKU8L3RleHQ+Cjwvc3ZnPg==';
+                }
+
+                let html = `
+                    <div class="character-info">
+                        <div class="character-avatar">
+                            <img src="${imageSrc}" alt="角色头像" />
+                        </div>
+                        <div class="character-details">
+                            <div class="character-name">${this.escapeHtml(data.name || '未知角色')}</div>
+                            
+                            <div class="character-field">
+                                <div class="field-label">📝 描述</div>
+                                <div class="field-value">${this.escapeHtml(data.description || '无描述')}</div>
+                            </div>
+                            
+                            <div class="character-field">
+                                <div class="field-label">🎭 性格</div>
+                                <div class="field-value">${this.escapeHtml(data.personality || '无性格描述')}</div>
+                            </div>
+                            
+                            <div class="character-field">
+                                <div class="field-label">🌍 场景</div>
+                                <div class="field-value">${this.escapeHtml(data.scenario || '无场景描述')}</div>
+                            </div>
+                            
+                            <div class="character-field">
+                                <div class="field-label">💬 首条消息</div>
+                                <div class="field-value">${this.escapeHtml(data.first_mes || '无首条消息')}</div>
+                            </div>
+                            
+                            <div class="character-field">
+                                <div class="field-label">👤 创建者</div>
+                                <div class="field-value">${this.escapeHtml(data.creator || '未知')}</div>
+                            </div>
+                            
+                            <div class="character-field">
+                                <div class="field-label">🏷️ 标签</div>
+                                <div class="field-value">${Array.isArray(data.tags) ? data.tags.join(', ') : '无标签'}</div>
+                            </div>
+                            
+                            <div class="character-field">
+                                <div class="field-label">📋 格式版本</div>
+                                <div class="field-value">${isV3 ? 'V3 (chara_card_v3)' : 'V2 (chara_card_v2)'}</div>
+                            </div>
+                            
+                            ${imageInfo ? `
+                            <div class="character-field">
+                                <div class="field-label">🖼️ 图片信息</div>
+                                <div class="field-value">
+                                    <strong>来源:</strong> ${imageInfo.url ? 'URL链接' : '本地文件'}<br>
+                                    <strong>大小:</strong> ${this.formatFileSize(imageInfo.size || 0)}<br>
+                                    ${imageInfo.contentType ? `<strong>类型:</strong> ${imageInfo.contentType}<br>` : ''}
+                                    ${imageInfo.fileName ? `<strong>文件名:</strong> ${imageInfo.fileName}` : ''}
+                                </div>
+                            </div>
+                            ` : ''}
+                            
+                            <div class="character-field">
+                                <div class="field-label">💾 操作</div>
+                                <div class="field-value">
+                                    <button id="saveImageButton" class="parse-button" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); margin-right: 10px; padding: 8px 16px; font-size: 0.9em;">
+                                        📥 保存图片
+                                    </button>
+                                    <button id="saveJsonButton" class="parse-button" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); margin-right: 10px; padding: 8px 16px; font-size: 0.9em;">
+                                        💾 保存JSON
+                                    </button>
+                                    <button id="copyJsonButton" class="parse-button" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); padding: 8px 16px; font-size: 0.9em;">
+                                        📋 复制JSON
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="raw-data">
+                        <div class="raw-data-title">📄 原始JSON数据</div>
+                        <div class="json-display">${JSON.stringify(characterData, null, 2)}</div>
+                    </div>
+                `;
+
+                this.resultContent.innerHTML = html;
+                
+                // 绑定保存按钮事件
+                this.bindSaveEvents(characterData, imageInfo);
+            }
+
+            escapeHtml(text) {
+                if (typeof text !== 'string') return text;
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            showLoading() {
+                this.resultContent.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <div>正在解析角色卡...</div>
+                    </div>
+                `;
+                this.resultSection.classList.add('show');
+            }
+
+            showSuccess(message = '解析成功') {
+                this.resultStatus.textContent = message;
+                this.resultStatus.className = 'result-status status-success';
+            }
+
+            showError(message) {
+                this.resultContent.innerHTML = `
+                    <div class="error-message">
+                        <strong>❌ 解析失败</strong><br>
+                        ${this.escapeHtml(message)}
+                    </div>
+                `;
+                this.resultStatus.textContent = '解析失败';
+                this.resultStatus.className = 'result-status status-error';
+                this.resultSection.classList.add('show');
+            }
+
+            showDetailedError(result) {
+                let suggestionsHtml = '';
+                if (result.suggestions && result.suggestions.length > 0) {
+                    suggestionsHtml = `
+                        <div class="character-field">
+                            <div class="field-label">💡 建议</div>
+                            <div class="field-value">
+                                <ul style="margin: 0; padding-left: 20px;">
+                                    ${result.suggestions.map(suggestion => `<li>${this.escapeHtml(suggestion)}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                this.resultContent.innerHTML = `
+                    <div class="character-info">
+                        <div class="character-details" style="grid-column: 1 / -1;">
+                            <div class="character-name">❌ 解析失败</div>
+                            
+                            <div class="character-field">
+                                <div class="field-label">错误信息</div>
+                                <div class="field-value" style="color: #f44336; font-weight: bold;">
+                                    ${this.escapeHtml(result.error || '未知错误')}
+                                </div>
+                            </div>
+                            
+                            ${result.imageInfo ? `
+                            <div class="character-field">
+                                <div class="field-label">图片信息</div>
+                                <div class="field-value">
+                                    <strong>URL:</strong> ${this.escapeHtml(result.imageInfo.url || '未知')}<br>
+                                    <strong>大小:</strong> ${this.formatFileSize(result.imageInfo.size || 0)}<br>
+                                    <strong>格式:</strong> ${result.imageInfo.contentType || '未知'}<br>
+                                    <strong>包含角色数据:</strong> ${result.imageInfo.hasCharacterData ? '是' : '否'}
+                                </div>
+                            </div>
+                            ` : ''}
+                            
+                            ${suggestionsHtml}
+                            
+                            <div class="character-field">
+                                <div class="field-label">📋 如何获取正确的角色卡图片</div>
+                                <div class="field-value">
+                                    1. 从SillyTavern导出角色卡（PNG格式）<br>
+                                    2. 确保图片包含角色元数据<br>
+                                    3. 避免使用Discord、微信等平台的图片链接<br>
+                                    4. 使用原始的角色卡文件<br>
+                                    5. Discord链接会返回WebP格式，不包含角色数据
+                                </div>
+                            </div>
+                            
+                            <div class="character-field">
+                                <div class="field-label">🔍 关于Discord图片链接</div>
+                                <div class="field-value">
+                                    <strong>问题:</strong> Discord链接返回WebP格式，不包含角色卡数据<br>
+                                    <strong>原因:</strong> Discord优化图片以提升加载速度<br>
+                                    <strong>解决:</strong> 使用从SillyTavern导出的原始PNG文件<br>
+                                    <strong>注意:</strong> 即使下载时显示PNG，API访问仍返回WebP
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                this.resultStatus.textContent = '解析失败';
+                this.resultStatus.className = 'result-status status-error';
+                this.resultSection.classList.add('show');
+            }
+
+            runTest() {
+                console.log('🧪 开始测试解析器...');
+                
+                // 创建一个测试用的角色卡数据
+                const testCharacterData = {
+                    spec: 'chara_card_v2',
+                    spec_version: '2.0',
+                    data: {
+                        name: '测试角色',
+                        description: '这是一个测试角色，用于验证解析器功能。',
+                        personality: '友好、好奇、乐于助人',
+                        scenario: '在一个充满魔法的世界中',
+                        first_mes: '你好！我是测试角色，很高兴见到你！',
+                        creator: '解析器测试',
+                        character_version: '1.0',
+                        tags: ['测试', '示例', '解析器'],
+                        extensions: {}
+                    }
+                };
+
+                // 测试Base64编码/解码
+                try {
+                    const jsonString = JSON.stringify(testCharacterData);
+                    console.log('测试JSON字符串:', jsonString);
+                    
+                    const base64Encoded = btoa(unescape(encodeURIComponent(jsonString)));
+                    console.log('Base64编码结果:', base64Encoded);
+                    
+                    const decoded = this.base64ToUtf8(base64Encoded);
+                    console.log('Base64解码结果:', decoded);
+                    
+                    const parsed = JSON.parse(decoded);
+                    console.log('JSON解析结果:', parsed);
+                    
+                    this.showTestResult('✅ 解析器测试通过！所有功能正常工作。', 'success');
+                } catch (error) {
+                    console.error('测试失败:', error);
+                    this.showTestResult('❌ 解析器测试失败: ' + error.message, 'error');
+                }
+            }
+
+            showTestResult(message, type) {
+                this.resultContent.innerHTML = `
+                    <div class="character-info">
+                        <div class="character-details" style="grid-column: 1 / -1;">
+                            <div class="character-name">🧪 解析器测试结果</div>
+                            <div class="character-field">
+                                <div class="field-label">测试状态</div>
+                                <div class="field-value" style="color: ${type === 'success' ? '#4caf50' : '#f44336'}; font-weight: bold;">
+                                    ${message}
+                                </div>
+                            </div>
+                            <div class="character-field">
+                                <div class="field-label">测试项目</div>
+                                <div class="field-value">
+                                    • JSON序列化/反序列化<br>
+                                    • Base64编码/解码<br>
+                                    • UTF-8文本处理<br>
+                                    • 错误处理机制
+                                </div>
+                            </div>
+                            <div class="character-field">
+                                <div class="field-label">调试信息</div>
+                                <div class="field-value">
+                                    请打开浏览器开发者工具的控制台查看详细的调试信息。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                this.resultStatus.textContent = type === 'success' ? '测试通过' : '测试失败';
+                this.resultStatus.className = `result-status status-${type}`;
+                this.resultSection.classList.add('show');
+            }
+
+
+            bindSaveEvents(characterData, imageInfo) {
+                // 保存图片按钮
+                const saveImageButton = document.getElementById('saveImageButton');
+                if (saveImageButton) {
+                    saveImageButton.addEventListener('click', () => this.saveImage(characterData, imageInfo));
+                }
+
+                // 保存JSON按钮
+                const saveJsonButton = document.getElementById('saveJsonButton');
+                if (saveJsonButton) {
+                    saveJsonButton.addEventListener('click', () => this.saveJson(characterData));
+                }
+
+                // 复制JSON按钮
+                const copyJsonButton = document.getElementById('copyJsonButton');
+                if (copyJsonButton) {
+                    copyJsonButton.addEventListener('click', () => this.copyJson(characterData));
+                }
+            }
+
+            async saveImage(characterData, imageInfo) {
+                try {
+                    let imageBlob;
+                    let filename = 'character.png';
+
+                    // 优先使用解析时保存的原始图片数据
+                    if (this.originalImageData) {
+                        imageBlob = this.originalImageData;
+                        filename = this.originalImageFilename || 'character.png';
+                    } else if (this.currentFile) {
+                        // 使用本地文件
+                        imageBlob = this.currentFile;
+                        filename = this.currentFile.name;
+                    } else if (imageInfo && imageInfo.url) {
+                        // 最后才从URL重新获取图片（可能丢失数据）
+                        const response = await fetch(imageInfo.url);
+                        imageBlob = await response.blob();
+                        filename = this.getFilenameFromUrl(imageInfo.url) || 'character.png';
+                    } else {
+                        throw new Error('没有可保存的图片');
+                    }
+
+                    // 创建下载链接
+                    const url = URL.createObjectURL(imageBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    this.showSuccess('图片已保存！');
+                } catch (error) {
+                    console.error('保存图片失败:', error);
+                    this.showError('保存图片失败: ' + error.message);
+                }
+            }
+
+            saveJson(characterData) {
+                try {
+                    const jsonString = JSON.stringify(characterData, null, 2);
+                    const blob = new Blob([jsonString], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${characterData.data?.name || 'character'}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    this.showSuccess('JSON文件已保存！');
+                } catch (error) {
+                    console.error('保存JSON失败:', error);
+                    this.showError('保存JSON失败: ' + error.message);
+                }
+            }
+
+            async copyJson(characterData) {
+                try {
+                    const jsonString = JSON.stringify(characterData, null, 2);
+                    await navigator.clipboard.writeText(jsonString);
+                    this.showSuccess('JSON已复制到剪贴板！');
+                } catch (error) {
+                    console.error('复制JSON失败:', error);
+                    // 回退方案
+                    const textArea = document.createElement('textarea');
+                    textArea.value = JSON.stringify(characterData, null, 2);
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    this.showSuccess('JSON已复制到剪贴板！');
+                }
+            }
+
+            getFilenameFromUrl(url) {
+                try {
+                    const urlObj = new URL(url);
+                    const pathname = urlObj.pathname;
+                    const filename = pathname.split('/').pop();
+                    return filename || 'character.png';
+                } catch {
+                    return 'character.png';
+                }
+            }
+        }
+
+        // 初始化解析器
+        document.addEventListener('DOMContentLoaded', () => {
+            new CharacterCardParser();
+        });
+    </script>
+</body>
+</html>
