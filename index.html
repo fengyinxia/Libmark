@@ -5,6 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SillyTavern 角色卡解析器 - 纯前端版</title>
     <style>
+        :root {
+            /* 主色调 */
+            --primary-color: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            
+            /* 辅助色 */
+            --success-color: #4cc9f0;
+            --error-color: #f72585;
+            --warning-color: #f8961e;
+            --info-color: #90e0ef;
+            
+            /* 中性色 */
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            
+            /* 间距系统 */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 3rem;
+            
+            /* 圆角 */
+            --border-radius-sm: 0.5rem;
+            --border-radius-md: 1rem;
+            --border-radius-lg: 1.5rem;
+            
+            /* 字体大小 */
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.5rem;
+            --font-size-xxl: 2rem;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,96 +52,171 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
             min-height: 100vh;
-            padding: 20px;
+            padding: var(--spacing-sm);
+            line-height: 1.6;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            background: var(--card-background);
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 4px 12px var(--shadow-color);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: var(--primary-color);
             color: white;
-            padding: 30px;
+            padding: var(--spacing-lg);
             text-align: center;
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 300;
+            font-size: var(--font-size-xxl);
+            margin-bottom: var(--spacing-xs);
+            font-weight: 600;
         }
 
         .header p {
-            font-size: 1.1em;
+            font-size: var(--font-size-base);
             opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .main-content {
-            padding: 40px;
+            padding: var(--spacing-lg);
         }
 
+        /* Tabs组件 */
+        .tabs {
+            display: flex;
+            margin-bottom: var(--spacing-lg);
+            background: var(--background-color);
+            border-radius: var(--border-radius-md);
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: var(--spacing-sm);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .tab:not(.active):hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* URL输入区域 */
+        .url-input-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .url-input-container {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        #urlInput {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-size: var(--font-size-base);
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        #urlInput:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        /* 文件上传区域 */
         .upload-section {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: var(--spacing-lg);
         }
 
         .upload-area {
-            border: 3px dashed #ddd;
-            border-radius: 15px;
-            padding: 60px 20px;
-            background: #fafafa;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-xl);
+            background: var(--background-color);
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
         }
 
-        .upload-area:hover {
-            border-color: #4facfe;
-            background: #f0f8ff;
-        }
-
+        .upload-area:hover,
         .upload-area.dragover {
-            border-color: #4facfe;
-            background: #e6f3ff;
-            transform: scale(1.02);
+            border-color: var(--primary-color);
+            background: rgba(67, 97, 238, 0.05);
         }
 
         .upload-icon {
-            font-size: 4em;
-            color: #ddd;
-            margin-bottom: 20px;
+            font-size: 3rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
         }
 
         .upload-text {
-            font-size: 1.2em;
-            color: #666;
-            margin-bottom: 10px;
+            font-size: var(--font-size-lg);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
         }
 
         .upload-hint {
-            color: #999;
-            font-size: 0.9em;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .paste-hint {
+            margin-top: var(--spacing-sm);
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            background: #e3f2fd;
+            padding: var(--spacing-xs);
+            border-radius: var(--border-radius-sm);
         }
 
         #fileInput {
             display: none;
         }
 
+        /* 文件信息展示 */
         .file-info {
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md);
             background: #e8f5e8;
-            border-radius: 10px;
+            border-radius: var(--border-radius-sm);
             display: none;
+            animation: fadeIn 0.3s ease;
         }
 
         .file-info.show {
@@ -109,42 +224,88 @@
         }
 
         .file-name {
-            font-weight: bold;
+            font-weight: 600;
             color: #2d5a2d;
+            margin-bottom: var(--spacing-xs);
         }
 
         .file-size {
-            color: #666;
-            font-size: 0.9em;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
         }
 
-        .parse-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* 按钮样式 */
+        .button {
+            background: var(--primary-color);
             color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 25px;
-            font-size: 1.1em;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius-sm);
+            font-size: var(--font-size-base);
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 20px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        .parse-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        .button:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
         }
 
-        .parse-button:disabled {
+        .button:disabled {
             background: #ccc;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
 
+        .button-success {
+            background: #4caf50;
+        }
+
+        .button-success:hover:not(:disabled) {
+            background: #45a049;
+        }
+
+        .button-info {
+            background: #2196f3;
+        }
+
+        .button-info:hover:not(:disabled) {
+            background: #1976d2;
+        }
+
+        .button-warning {
+            background: #ff9800;
+        }
+
+        .button-warning:hover:not(:disabled) {
+            background: #f57c00;
+        }
+
+        .button-error {
+            background: #f44336;
+        }
+
+        .button-error:hover:not(:disabled) {
+            background: #d32f2f;
+        }
+
+        /* 解析按钮 */
+        .parse-button {
+            margin-top: var(--spacing-md);
+        }
+
+        /* 结果区域 */
         .result-section {
-            margin-top: 40px;
+            margin-top: var(--spacing-lg);
             display: none;
+            animation: fadeIn 0.5s ease;
         }
 
         .result-section.show {
@@ -152,24 +313,27 @@
         }
 
         .result-header {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            background: var(--background-color);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-sm);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .result-title {
-            font-size: 1.5em;
-            color: #333;
-            margin-bottom: 10px;
+            font-size: var(--font-size-xl);
+            color: var(--text-primary);
+            font-weight: 600;
         }
 
         .result-status {
             display: inline-block;
-            padding: 5px 15px;
+            padding: 0.25rem 0.75rem;
             border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
         }
 
         .status-success {
@@ -187,11 +351,12 @@
             color: #0c5460;
         }
 
+        /* 角色信息展示 */
         .character-info {
             display: grid;
             grid-template-columns: 1fr 2fr;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
         }
 
         .character-avatar {
@@ -199,137 +364,237 @@
         }
 
         .character-avatar img {
-            max-width: 200px;
-            max-height: 200px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 250px;
+            max-height: 250px;
+            border-radius: var(--border-radius-md);
+            box-shadow: 0 4px 12px var(--shadow-color);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .character-avatar img:hover {
+            transform: scale(1.05);
         }
 
         .character-details {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
+            background: var(--background-color);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-sm);
         }
 
         .character-name {
-            font-size: 1.8em;
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: bold;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            font-weight: 700;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: var(--spacing-xs);
         }
 
         .character-field {
-            margin-bottom: 15px;
+            margin-bottom: var(--spacing-md);
         }
 
         .field-label {
-            font-weight: bold;
-            color: #555;
-            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-lg);
         }
 
         .field-value {
-            color: #666;
-            line-height: 1.5;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            border-left: 4px solid #4facfe;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            background: var(--card-background);
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius-sm);
+            border-left: 4px solid var(--primary-color);
+            white-space: pre-wrap;
+            word-break: break-word;
         }
 
+        /* 操作按钮组 */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .action-buttons .button {
+            margin: 0;
+            padding: 0.5rem 1rem;
+            font-size: var(--font-size-sm);
+        }
+
+        /* 原始数据区域 */
         .raw-data {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
+            background: var(--background-color);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-sm);
+            margin-top: var(--spacing-md);
         }
 
         .raw-data-title {
-            font-size: 1.2em;
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: bold;
+            font-size: var(--font-size-xl);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            font-weight: 600;
         }
 
         .json-display {
             background: #2d3748;
             color: #e2e8f0;
-            padding: 20px;
-            border-radius: 10px;
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-sm);
             font-family: 'Courier New', monospace;
-            font-size: 0.9em;
+            font-size: var(--font-size-sm);
             overflow-x: auto;
             white-space: pre-wrap;
             word-break: break-all;
+            max-height: 400px;
+            line-height: 1.5;
         }
 
         .error-message {
             background: #f8d7da;
             color: #721c24;
-            padding: 20px;
-            border-radius: 10px;
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-sm);
             border-left: 4px solid #dc3545;
         }
 
+        /* Loading状态 */
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: var(--spacing-xl);
         }
 
         .spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #4facfe;
+            border-top: 4px solid var(--primary-color);
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto var(--spacing-sm);
         }
 
+        /* Toast通知 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius-sm);
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            animation: slideInRight 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toast-success {
+            background: #4caf50;
+        }
+
+        .toast-error {
+            background: #f44336;
+        }
+
+        .toast-warning {
+            background: #ff9800;
+        }
+
+        .toast-info {
+            background: #2196f3;
+        }
+
+        /* 动画 */
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        .supported-formats {
-            background: #e3f2fd;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .supported-formats h3 {
-            color: #1976d2;
-            margin-bottom: 10px;
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
         }
 
-        .format-list {
-            list-style: none;
-            padding: 0;
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
         }
 
-        .format-list li {
-            padding: 5px 0;
-            color: #666;
-        }
-
-        .format-list li:before {
-            content: "✓ ";
-            color: #4caf50;
-            font-weight: bold;
-        }
-
+        /* 响应式设计 */
         @media (max-width: 768px) {
+            :root {
+                --spacing-sm: 0.75rem;
+                --spacing-md: 1rem;
+                --spacing-lg: 1.5rem;
+                --spacing-xl: 2rem;
+            }
+            
             .character-info {
                 grid-template-columns: 1fr;
+                gap: var(--spacing-md);
             }
             
             .main-content {
-                padding: 20px;
+                padding: var(--spacing-md);
             }
             
             .header h1 {
-                font-size: 2em;
+                font-size: 1.5rem;
+            }
+            
+            .url-input-container {
+                flex-direction: column;
+                gap: var(--spacing-xs);
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-buttons .button {
+                width: 100%;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0.5rem;
+            }
+            
+            .header {
+                padding: 1rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .upload-area {
+                padding: 1.5rem;
+            }
+            
+            .character-avatar img {
+                max-width: 200px;
+                max-height: 200px;
             }
         }
     </style>
@@ -338,78 +603,57 @@
     <div class="container">
         <div class="header">
             <h1>🎭 SillyTavern 角色卡解析器</h1>
-            <p>纯前端版本 - 上传角色卡PNG图片或输入URL链接，解析并查看角色信息</p>
+            <p>纯前端版本 - 上传角色卡图片、粘贴图片或输入URL链接，解析并查看角色信息</p>
         </div>
 
         <div class="main-content">
-            <div class="upload-section">
-                <!-- URL输入区域 -->
-                <div class="url-input-section" style="margin-bottom: 30px;">
-                    <div class="url-input-container" style="display: flex; gap: 10px; align-items: center; max-width: 600px; margin: 0 auto;">
-                        <input type="url" id="urlInput" placeholder="输入PNG图片链接..." 
-                               style="flex: 1; padding: 12px 16px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; transition: border-color 0.3s ease;"
-                               onfocus="this.style.borderColor='#4facfe'" 
-                               onblur="this.style.borderColor='#ddd'">
-                        <button id="parseUrlButton" class="parse-button" style="margin: 0; padding: 12px 24px; white-space: nowrap;">
+            <!-- Tabs切换 -->
+            <div class="tabs">
+                <div class="tab active" data-tab="url">🔗 URL解析</div>
+                <div class="tab" data-tab="upload">📁 文件上传</div>
+            </div>
+
+            <!-- URL解析区域 -->
+            <div class="tab-content active" id="urlTab">
+                <div class="url-input-section">
+                    <div class="url-input-container">
+                        <input type="url" id="urlInput" placeholder="输入PNG图片链接..." />
+                        <button id="parseUrlButton" class="button">
                             🌐 解析链接
                         </button>
                     </div>
-                    <p style="margin-top: 10px; color: #666; font-size: 0.9em;">
-                        支持直接输入PNG图片的URL链接进行解析
-                    </p>
                 </div>
-
-                <!-- 分隔线 -->
-                <div style="text-align: center; margin: 20px 0; color: #ccc; font-size: 14px;">
-                    <span style="background: white; padding: 0 20px;">或</span>
-                    <hr style="border: none; border-top: 1px solid #ddd; margin: -10px 0 0 0;">
-                </div>
-
-                <!-- 文件上传区域 -->
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">📁</div>
-                    <div class="upload-text">点击选择文件或拖拽PNG图片到此处</div>
-                    <div class="upload-hint">支持 SillyTavern 角色卡格式 (V2/V3)</div>
-                </div>
-                <input type="file" id="fileInput" accept=".png" />
-                
-                <div class="file-info" id="fileInfo">
-                    <div class="file-name" id="fileName"></div>
-                    <div class="file-size" id="fileSize"></div>
-                </div>
-
-                <button class="parse-button" id="parseButton" disabled>解析角色卡</button>
             </div>
 
+            <!-- 文件上传区域 -->
+            <div class="tab-content" id="uploadTab">
+                <div class="upload-section">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">点击选择文件或拖拽PNG图片到此处</div>
+                        <div class="upload-hint">支持 SillyTavern 角色卡格式 (V2/V3)</div>
+                        <div class="paste-hint">💡 提示：也可以直接粘贴图片 (Ctrl+V)</div>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*" />
+                    
+                    <div class="file-info" id="fileInfo">
+                        <div class="file-name" id="fileName"></div>
+                        <div class="file-size" id="fileSize"></div>
+                    </div>
+
+                    <button class="button parse-button" id="parseButton" disabled>
+                        解析角色卡
+                    </button>
+                </div>
+            </div>
+
+            <!-- 结果展示区域 -->
             <div class="result-section" id="resultSection">
                 <div class="result-header">
                     <div class="result-title">解析结果</div>
                     <div class="result-status" id="resultStatus"></div>
                 </div>
                 <div id="resultContent"></div>
-            </div>
-
-            <div class="supported-formats">
-                <h3>📋 支持的格式</h3>
-                <ul class="format-list">
-                    <li>SillyTavern V2 格式 (chara_card_v2)</li>
-                    <li>SillyTavern V3 格式 (chara_card_v3)</li>
-                    <li>PNG 图片格式</li>
-                    <li>JPEG/WebP/GIF/BMP 图片格式</li>
-                    <li>自动格式转换支持</li>
-                    <li>包含角色元数据的图片</li>
-                    <li>支持URL链接解析</li>
-                    <li>支持本地文件上传</li>
-                </ul>
-                
-                <div style="margin-top: 20px; text-align: center;">
-                    <button id="testButton" class="parse-button" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
-                        🧪 测试解析器
-                    </button>
-                    <p style="margin-top: 10px; color: #666; font-size: 0.9em;">
-                        点击测试按钮查看解析器状态和调试信息
-                    </p>
-                </div>
             </div>
         </div>
     </div>
@@ -419,6 +663,8 @@
             constructor() {
                 this.initializeElements();
                 this.bindEvents();
+                this.showToast = this.showToast.bind(this);
+                this.pastedImage = null;
             }
 
             initializeElements() {
@@ -433,9 +679,27 @@
                 this.resultContent = document.getElementById('resultContent');
                 this.urlInput = document.getElementById('urlInput');
                 this.parseUrlButton = document.getElementById('parseUrlButton');
+                
+                // Tabs元素
+                this.tabs = document.querySelectorAll('.tab');
+                this.tabContents = document.querySelectorAll('.tab-content');
             }
 
             bindEvents() {
+                // Tabs切换
+                this.tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabName = tab.dataset.tab;
+                        
+                        // 更新tab状态
+                        this.tabs.forEach(t => t.classList.remove('active'));
+                        this.tabContents.forEach(c => c.classList.remove('active'));
+                        
+                        tab.classList.add('active');
+                        document.getElementById(`${tabName}Tab`).classList.add('active');
+                    });
+                });
+
                 this.uploadArea.addEventListener('click', () => this.fileInput.click());
                 this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
                 this.parseButton.addEventListener('click', () => this.parseCharacterCard());
@@ -455,11 +719,30 @@
                 this.uploadArea.addEventListener('dragleave', (e) => this.handleDragLeave(e));
                 this.uploadArea.addEventListener('drop', (e) => this.handleDrop(e));
 
-                // 测试按钮
-                const testButton = document.getElementById('testButton');
-                if (testButton) {
-                    testButton.addEventListener('click', () => this.runTest());
+                // 粘贴事件
+                document.addEventListener('paste', (e) => this.handlePaste(e));
+            }
+
+            showToast(message, type = 'info') {
+                // 移除已存在的toast
+                const existingToast = document.querySelector('.toast');
+                if (existingToast) {
+                    existingToast.remove();
                 }
+
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                toast.innerHTML = `
+                    <span>${message}</span>
+                `;
+                document.body.appendChild(toast);
+
+                // 3秒后自动移除
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 3000);
             }
 
             handleDragOver(e) {
@@ -490,16 +773,43 @@
             }
 
             handleFile(file) {
-                if (!file.type.startsWith('image/png')) {
-                    alert('请选择PNG格式的图片文件');
-                    return;
-                }
-
                 this.currentFile = file;
+                this.pastedImage = null; // 清除粘贴的图片
                 this.fileName.textContent = file.name;
                 this.fileSize.textContent = this.formatFileSize(file.size);
                 this.fileInfo.classList.add('show');
                 this.parseButton.disabled = false;
+                
+                // 自动切换到上传tab
+                this.tabs[1].click();
+            }
+
+            async handlePaste(e) {
+                const items = e.clipboardData.items;
+                
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        const blob = items[i].getAsFile();
+                        if (blob) {
+                            this.handlePastedImage(blob);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            handlePastedImage(blob) {
+                this.pastedImage = blob;
+                this.currentFile = null; // 清除选择的文件
+                this.fileName.textContent = '粘贴的图片';
+                this.fileSize.textContent = this.formatFileSize(blob.size);
+                this.fileInfo.classList.add('show');
+                this.parseButton.disabled = false;
+                
+                // 自动切换到上传tab
+                this.tabs[1].click();
+                
+                this.showToast('图片已粘贴，点击"解析角色卡"进行解析', 'info');
             }
 
             formatFileSize(bytes) {
@@ -511,18 +821,26 @@
             }
 
             async parseCharacterCard() {
-                if (!this.currentFile) return;
+                let imageBlob = null;
+                
+                if (this.pastedImage) {
+                    imageBlob = this.pastedImage;
+                } else if (this.currentFile) {
+                    imageBlob = this.currentFile;
+                }
+                
+                if (!imageBlob) return;
 
                 this.showLoading();
                 
                 try {
-                    const arrayBuffer = await this.currentFile.arrayBuffer();
+                    const arrayBuffer = await imageBlob.arrayBuffer();
                     const characterData = this.extractCharacterData(arrayBuffer);
                     
                     if (characterData) {
                         // 保存原始图片数据用于后续保存
-                        this.originalImageData = this.currentFile;
-                        this.originalImageFilename = this.currentFile.name;
+                        this.originalImageData = imageBlob;
+                        this.originalImageFilename = this.pastedImage ? 'pasted_character.png' : imageBlob.name;
                         
                         this.displayCharacterInfo(characterData);
                         this.showSuccess();
@@ -531,6 +849,7 @@
                     }
                 } catch (error) {
                     console.error('解析错误:', error);
+                    this.showToast('解析失败: ' + error.message, 'error');
                     this.showError('解析失败: ' + error.message);
                 }
             }
@@ -539,7 +858,7 @@
                 const url = this.urlInput.value.trim();
                 
                 if (!url) {
-                    this.showError('请输入图片URL');
+                    this.showToast('请输入图片URL', 'warning');
                     return;
                 }
 
@@ -547,7 +866,7 @@
                 try {
                     new URL(url);
                 } catch {
-                    this.showError('请输入有效的URL');
+                    this.showToast('请输入有效的URL', 'error');
                     return;
                 }
 
@@ -589,6 +908,7 @@
                     }
                 } catch (error) {
                     console.error('URL解析错误:', error);
+                    this.showToast('网络错误: ' + error.message, 'error');
                     this.showError('网络错误: ' + error.message);
                 }
             }
@@ -791,6 +1111,8 @@
                 let imageSrc = '';
                 if (imageInfo && imageInfo.url) {
                     imageSrc = imageInfo.url;
+                } else if (this.pastedImage) {
+                    imageSrc = URL.createObjectURL(this.pastedImage);
                 } else if (this.currentFile) {
                     imageSrc = URL.createObjectURL(this.currentFile);
                 } else {
@@ -800,7 +1122,7 @@
                 let html = `
                     <div class="character-info">
                         <div class="character-avatar">
-                            <img src="${imageSrc}" alt="角色头像" />
+                            <img src="${imageSrc}" alt="角色头像" onclick="showImageModal('${imageSrc}')" />
                         </div>
                         <div class="character-details">
                             <div class="character-name">${this.escapeHtml(data.name || '未知角色')}</div>
@@ -854,14 +1176,14 @@
                             
                             <div class="character-field">
                                 <div class="field-label">💾 操作</div>
-                                <div class="field-value">
-                                    <button id="saveImageButton" class="parse-button" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); margin-right: 10px; padding: 8px 16px; font-size: 0.9em;">
+                                <div class="action-buttons">
+                                    <button id="saveImageButton" class="button button-success">
                                         📥 保存图片
                                     </button>
-                                    <button id="saveJsonButton" class="parse-button" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); margin-right: 10px; padding: 8px 16px; font-size: 0.9em;">
+                                    <button id="saveJsonButton" class="button button-info">
                                         💾 保存JSON
                                     </button>
-                                    <button id="copyJsonButton" class="parse-button" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); padding: 8px 16px; font-size: 0.9em;">
+                                    <button id="copyJsonButton" class="button button-warning">
                                         📋 复制JSON
                                     </button>
                                 </div>
@@ -901,6 +1223,7 @@
             showSuccess(message = '解析成功') {
                 this.resultStatus.textContent = message;
                 this.resultStatus.className = 'result-status status-success';
+                this.showToast(message, 'success');
             }
 
             showError(message) {
@@ -985,83 +1308,6 @@
                 this.resultSection.classList.add('show');
             }
 
-            runTest() {
-                console.log('🧪 开始测试解析器...');
-                
-                // 创建一个测试用的角色卡数据
-                const testCharacterData = {
-                    spec: 'chara_card_v2',
-                    spec_version: '2.0',
-                    data: {
-                        name: '测试角色',
-                        description: '这是一个测试角色，用于验证解析器功能。',
-                        personality: '友好、好奇、乐于助人',
-                        scenario: '在一个充满魔法的世界中',
-                        first_mes: '你好！我是测试角色，很高兴见到你！',
-                        creator: '解析器测试',
-                        character_version: '1.0',
-                        tags: ['测试', '示例', '解析器'],
-                        extensions: {}
-                    }
-                };
-
-                // 测试Base64编码/解码
-                try {
-                    const jsonString = JSON.stringify(testCharacterData);
-                    console.log('测试JSON字符串:', jsonString);
-                    
-                    const base64Encoded = btoa(unescape(encodeURIComponent(jsonString)));
-                    console.log('Base64编码结果:', base64Encoded);
-                    
-                    const decoded = this.base64ToUtf8(base64Encoded);
-                    console.log('Base64解码结果:', decoded);
-                    
-                    const parsed = JSON.parse(decoded);
-                    console.log('JSON解析结果:', parsed);
-                    
-                    this.showTestResult('✅ 解析器测试通过！所有功能正常工作。', 'success');
-                } catch (error) {
-                    console.error('测试失败:', error);
-                    this.showTestResult('❌ 解析器测试失败: ' + error.message, 'error');
-                }
-            }
-
-            showTestResult(message, type) {
-                this.resultContent.innerHTML = `
-                    <div class="character-info">
-                        <div class="character-details" style="grid-column: 1 / -1;">
-                            <div class="character-name">🧪 解析器测试结果</div>
-                            <div class="character-field">
-                                <div class="field-label">测试状态</div>
-                                <div class="field-value" style="color: ${type === 'success' ? '#4caf50' : '#f44336'}; font-weight: bold;">
-                                    ${message}
-                                </div>
-                            </div>
-                            <div class="character-field">
-                                <div class="field-label">测试项目</div>
-                                <div class="field-value">
-                                    • JSON序列化/反序列化<br>
-                                    • Base64编码/解码<br>
-                                    • UTF-8文本处理<br>
-                                    • 错误处理机制
-                                </div>
-                            </div>
-                            <div class="character-field">
-                                <div class="field-label">调试信息</div>
-                                <div class="field-value">
-                                    请打开浏览器开发者工具的控制台查看详细的调试信息。
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                this.resultStatus.textContent = type === 'success' ? '测试通过' : '测试失败';
-                this.resultStatus.className = `result-status status-${type}`;
-                this.resultSection.classList.add('show');
-            }
-
-
             bindSaveEvents(characterData, imageInfo) {
                 // 保存图片按钮
                 const saveImageButton = document.getElementById('saveImageButton');
@@ -1084,13 +1330,16 @@
 
             async saveImage(characterData, imageInfo) {
                 try {
-                    let imageBlob;
+                    let imageBlob = null;
                     let filename = 'character.png';
 
                     // 优先使用解析时保存的原始图片数据
                     if (this.originalImageData) {
                         imageBlob = this.originalImageData;
                         filename = this.originalImageFilename || 'character.png';
+                    } else if (this.pastedImage) {
+                        imageBlob = this.pastedImage;
+                        filename = 'pasted_character.png';
                     } else if (this.currentFile) {
                         // 使用本地文件
                         imageBlob = this.currentFile;
@@ -1117,6 +1366,7 @@
                     this.showSuccess('图片已保存！');
                 } catch (error) {
                     console.error('保存图片失败:', error);
+                    this.showToast('保存图片失败: ' + error.message, 'error');
                     this.showError('保存图片失败: ' + error.message);
                 }
             }
@@ -1138,6 +1388,7 @@
                     this.showSuccess('JSON文件已保存！');
                 } catch (error) {
                     console.error('保存JSON失败:', error);
+                    this.showToast('保存JSON失败: ' + error.message, 'error');
                     this.showError('保存JSON失败: ' + error.message);
                 }
             }
@@ -1176,6 +1427,51 @@
         document.addEventListener('DOMContentLoaded', () => {
             new CharacterCardParser();
         });
+
+        // 图片放大查看功能
+        function showImageModal(src) {
+            // 创建模态框
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                cursor: pointer;
+            `;
+            
+            const img = document.createElement('img');
+            img.src = src;
+            img.style.cssText = `
+                max-width: 90%;
+                max-height: 90%;
+                border-radius: 1rem;
+                box-shadow: 0 0 2rem rgba(255, 255, 255, 0.2);
+            `;
+            
+            modal.appendChild(img);
+            document.body.appendChild(modal);
+            
+            // 点击关闭
+            modal.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+            
+            // ESC关闭
+            const handleEsc = (e) => {
+                if (e.key === 'Escape' && modal.parentNode) {
+                    document.body.removeChild(modal);
+                    document.removeEventListener('keydown', handleEsc);
+                }
+            };
+            document.addEventListener('keydown', handleEsc);
+        }
     </script>
 </body>
 </html>
