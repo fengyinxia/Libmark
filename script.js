@@ -239,18 +239,24 @@ class CharacterCardParser {
 
     extractCharacterData(arrayBuffer) {
         try {
+            console.log('开始提取角色数据，ArrayBuffer长度:', arrayBuffer.byteLength);
+            
             // 将ArrayBuffer转换为Uint8Array
             const data = new Uint8Array(arrayBuffer);
             
             // 首先尝试使用更简单的方法查找文本块
             let textChunks = this.findTextChunksSimple(data);
+            console.log('简单方法找到的文本块数量:', textChunks.length);
             
             if (textChunks.length === 0) {
                 // 如果简单方法失败，尝试完整解析
+                console.log('尝试完整解析方法...');
                 textChunks = this.extractTextChunks(data);
+                console.log('完整解析方法找到的文本块数量:', textChunks.length);
             }
 
             if (textChunks.length === 0) {
+                console.log('未找到任何文本块');
                 throw new Error('PNG文件中未找到文本块');
             }
 
@@ -284,6 +290,7 @@ class CharacterCardParser {
                 return JSON.parse(jsonData);
             }
 
+            console.log('未找到有效的角色卡数据');
             throw new Error('未找到有效的角色卡数据');
         } catch (error) {
             console.error('提取角色数据时出错:', error);
@@ -295,11 +302,17 @@ class CharacterCardParser {
         const chunks = [];
         const dataString = new TextDecoder('latin1').decode(data);
         
+        console.log('开始简单文本块查找，数据长度:', data.length);
+        
         // 查找tEXt块标记
         let pos = 0;
+        let foundChunks = 0;
+        
         while (pos < dataString.length) {
             const tEXtPos = dataString.indexOf('tEXt', pos);
             if (tEXtPos === -1) break;
+            
+            console.log('找到tEXt标记在位置:', tEXtPos);
             
             // 向前查找块长度
             const lengthStart = tEXtPos - 4;
@@ -310,6 +323,8 @@ class CharacterCardParser {
             
             const lengthBytes = data.slice(lengthStart, tEXtPos);
             const length = (lengthBytes[0] << 24) | (lengthBytes[1] << 16) | (lengthBytes[2] << 8) | lengthBytes[3];
+            
+            console.log('块长度:', length);
             
             if (length > 0 && length < 1000000) { // 合理的长度限制
                 const dataStart = tEXtPos + 4;
@@ -328,10 +343,13 @@ class CharacterCardParser {
                         const keyword = new TextDecoder('utf-8').decode(chunkData.slice(0, nullPos));
                         const textData = new TextDecoder('utf-8').decode(chunkData.slice(nullPos + 1));
                         
+                        console.log('找到文本块:', keyword, '长度:', textData.length);
+                        
                         chunks.push({
                             keyword: keyword,
                             text: textData
                         });
+                        foundChunks++;
                     }
                 }
             }
@@ -339,12 +357,16 @@ class CharacterCardParser {
             pos = tEXtPos + 4;
         }
         
+        console.log('简单方法总共找到', foundChunks, '个文本块');
         return chunks;
     }
 
     extractTextChunks(data) {
         const chunks = [];
         let offset = 8; // 跳过PNG文件头
+        let foundChunks = 0;
+
+        console.log('开始完整解析方法，数据长度:', data.length);
 
         while (offset < data.length - 12) {
             // 读取块长度
@@ -354,6 +376,8 @@ class CharacterCardParser {
             // 读取块类型
             const type = this.readString(data, offset, 4);
             offset += 4;
+
+            console.log('找到块类型:', type, '长度:', length);
 
             // 如果是tEXt块，解析它
             if (type === 'tEXt') {
@@ -366,10 +390,13 @@ class CharacterCardParser {
                 const keyword = this.readString(data, offset, nullPos - offset);
                 const textData = this.readString(data, nullPos + 1, length - (nullPos - offset) - 1);
                 
+                console.log('完整解析找到文本块:', keyword, '长度:', textData.length);
+                
                 chunks.push({
                     keyword: keyword,
                     text: textData
                 });
+                foundChunks++;
                 
                 offset += length;
             } else {
@@ -381,6 +408,7 @@ class CharacterCardParser {
             offset += 4;
         }
 
+        console.log('完整解析方法总共找到', foundChunks, '个文本块');
         return chunks;
     }
 

@@ -22,7 +22,7 @@
                         <button class="tab-button" data-tab="upload" role="tab" aria-selected="false" aria-controls="uploadTab" id="uploadTabButton">📁 文件上传</button>
                     </div>
                     
-                    <!-- URL输入区域 -->
+                <!-- URL输入区域 -->
                     <div class="tab-content active" id="urlTab" role="tabpanel" aria-labelledby="urlTabButton">
                         <div class="url-input-container" style="display: flex; gap: var(--spacing-sm); align-items: center; max-width: 600px; margin: 0 auto;">
                             <input type="url" id="urlInput" placeholder="输入PNG图片链接..." 
@@ -32,24 +32,24 @@
                                    aria-label="输入PNG图片URL链接">
                             <button id="parseUrlButton" class="parse-button" style="margin: 0; padding: var(--spacing-md) var(--spacing-lg); white-space: nowrap;"
                                     aria-label="解析URL链接">
-                                🌐 解析链接
-                            </button>
+                            🌐 解析链接
+                        </button>
                         </div>
-                    </div>
-                    
-                    <!-- 文件上传区域 -->
+                </div>
+
+                <!-- 文件上传区域 -->
                     <div class="tab-content" id="uploadTab" role="tabpanel" aria-labelledby="uploadTabButton">
                         <div class="upload-area" id="uploadArea" role="button" tabindex="0" aria-label="点击选择文件或拖拽PNG图片到此处">
                             <div class="upload-icon" aria-hidden="true">📁</div>
-                            <div class="upload-text">点击选择文件或拖拽PNG图片到此处</div>
-                            <div class="upload-hint">支持 SillyTavern 角色卡格式 (V2/V3)</div>
-                        </div>
+                    <div class="upload-text">点击选择文件或拖拽PNG图片到此处</div>
+                    <div class="upload-hint">支持 SillyTavern 角色卡格式 (V2/V3)</div>
+                </div>
                         <input type="file" id="fileInput" accept=".png" aria-label="选择PNG文件" />
-                        
+                
                         <div class="file-info" id="fileInfo" role="status" aria-live="polite">
-                            <div class="file-name" id="fileName"></div>
-                            <div class="file-size" id="fileSize"></div>
-                        </div>
+                    <div class="file-name" id="fileName"></div>
+                    <div class="file-size" id="fileSize"></div>
+                </div>
 
                         <button class="parse-button" id="parseButton" disabled aria-label="解析选中的角色卡文件">解析角色卡</button>
                     </div>
