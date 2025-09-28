@@ -318,8 +318,9 @@ body {
 }
 
 .character-info {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: var(--spacing-xl);
     margin-bottom: var(--spacing-xl);
 }
@@ -329,8 +330,8 @@ body {
 }
 
 .character-avatar img {
-    max-width: 200px;
-    max-height: 200px;
+    max-width: 250px;
+    max-height: 250px;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     cursor: pointer;
@@ -342,10 +343,20 @@ body {
     box-shadow: var(--shadow-xl);
 }
 
+.character-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-lg) 0;
+    flex-wrap: wrap;
+}
+
 .character-details {
     background: var(--background-light);
     padding: var(--spacing-lg);
     border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 800px;
 }
 
 .character-name {
@@ -378,54 +389,6 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
-.raw-data {
-    background: var(--background-light);
-    padding: var(--spacing-lg);
-    border-radius: var(--radius-lg);
-    margin-top: var(--spacing-lg);
-}
-
-.raw-data-title {
-    font-size: 1.2rem;
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-md);
-    font-weight: 600;
-}
-
-.json-display {
-    background: #1e293b;
-    color: #e2e8f0;
-    padding: var(--spacing-lg);
-    border-radius: var(--radius-lg);
-    font-family: 'Fira Code', 'Courier New', monospace;
-    font-size: 0.9rem;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-break: break-all;
-    line-height: 1.5;
-    box-shadow: var(--shadow-md);
-}
-
-.json-display .string {
-    color: #a7f3d0;
-}
-
-.json-display .number {
-    color: #fbbf24;
-}
-
-.json-display .boolean {
-    color: #f472b6;
-}
-
-.json-display .null {
-    color: #94a3b8;
-}
-
-.json-display .key {
-    color: #60a5fa;
-    font-weight: 600;
-}
 
 .error-message {
     background: rgba(239, 68, 68, 0.1);
@@ -455,34 +418,6 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-.supported-formats {
-    background: rgba(6, 182, 212, 0.05);
-    padding: var(--spacing-lg);
-    border-radius: var(--radius-lg);
-    margin-top: var(--spacing-xl);
-    border: 1px solid rgba(6, 182, 212, 0.1);
-}
-
-.supported-formats h3 {
-    color: var(--accent-color);
-    margin-bottom: var(--spacing-sm);
-}
-
-.format-list {
-    list-style: none;
-    padding: 0;
-}
-
-.format-list li {
-    padding: var(--spacing-xs) 0;
-    color: var(--text-secondary);
-}
-
-.format-list li:before {
-    content: "✓ ";
-    color: var(--success-color);
-    font-weight: bold;
-}
 
 /* Toast通知样式 */
 .toast {
@@ -530,13 +465,22 @@ body {
     }
     
     .character-info {
-        grid-template-columns: 1fr;
         gap: var(--spacing-lg);
     }
     
     .character-avatar img {
-        max-width: 150px;
-        max-height: 150px;
+        max-width: 180px;
+        max-height: 180px;
+    }
+    
+    .character-actions {
+        gap: var(--spacing-xs);
+        margin: var(--spacing-md) 0;
+    }
+    
+    .character-actions .parse-button {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: 0.8em;
     }
     
     .parse-button {

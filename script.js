@@ -47,11 +47,6 @@ class CharacterCardParser {
         // Tab切换事件
         this.bindTabEvents();
 
-        // 测试按钮
-        const testButton = document.getElementById('testButton');
-        if (testButton) {
-            testButton.addEventListener('click', () => this.runTest());
-        }
 
         // 键盘快捷键
         this.bindKeyboardShortcuts();
@@ -455,6 +450,19 @@ class CharacterCardParser {
                 <div class="character-avatar">
                     <img src="${imageSrc}" alt="角色头像" />
                 </div>
+                
+                <div class="character-actions">
+                    <button id="saveImageButton" class="parse-button" style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); margin-right: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.9em;">
+                        📥 保存图片
+                    </button>
+                    <button id="saveJsonButton" class="parse-button" style="background: linear-gradient(135deg, var(--accent-color) 0%, #0891b2 100%); margin-right: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.9em;">
+                        💾 保存JSON
+                    </button>
+                    <button id="copyJsonButton" class="parse-button" style="background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.9em;">
+                        📋 复制JSON
+                    </button>
+                </div>
+                
                 <div class="character-details">
                     <div class="character-name">${this.escapeHtml(data.name || '未知角色')}</div>
                     
@@ -464,70 +472,48 @@ class CharacterCardParser {
                     </div>
                     
                     <div class="character-field">
-                        <div class="field-label">🎭 性格</div>
-                        <div class="field-value">${this.escapeHtml(data.personality || '无性格描述')}</div>
-                    </div>
-                    
-                    <div class="character-field">
-                        <div class="field-label">🌍 场景</div>
-                        <div class="field-value">${this.escapeHtml(data.scenario || '无场景描述')}</div>
-                    </div>
-                    
-                    <div class="character-field">
                         <div class="field-label">💬 首条消息</div>
                         <div class="field-value">${this.escapeHtml(data.first_mes || '无首条消息')}</div>
                     </div>
                     
+                    ${data.character_book && data.character_book.entries && data.character_book.entries.length > 0 ? `
                     <div class="character-field">
-                        <div class="field-label">👤 创建者</div>
-                        <div class="field-value">${this.escapeHtml(data.creator || '未知')}</div>
-                    </div>
-                    
-                    <div class="character-field">
-                        <div class="field-label">🏷️ 标签</div>
-                        <div class="field-value">${Array.isArray(data.tags) ? data.tags.join(', ') : '无标签'}</div>
-                    </div>
-                    
-                    <div class="character-field">
-                        <div class="field-label">📋 格式版本</div>
-                        <div class="field-value">${isV3 ? 'V3 (chara_card_v3)' : 'V2 (chara_card_v2)'}</div>
-                    </div>
-                    
-                    ${imageInfo ? `
-                    <div class="character-field">
-                        <div class="field-label">🖼️ 图片信息</div>
+                        <div class="field-label">📚 世界书介绍</div>
                         <div class="field-value">
-                            <strong>来源:</strong> ${imageInfo.url ? 'URL链接' : '本地文件'}<br>
-                            <strong>大小:</strong> ${this.formatFileSize(imageInfo.size || 0)}<br>
-                            ${imageInfo.contentType ? `<strong>类型:</strong> ${imageInfo.contentType}<br>` : ''}
-                            ${imageInfo.fileName ? `<strong>文件名:</strong> ${imageInfo.fileName}<br>` : ''}
-                            ${imageInfo.originalUrl && imageInfo.originalUrl !== imageInfo.url ? 
-                                `<strong>原始链接:</strong> ${this.escapeHtml(imageInfo.originalUrl)}<br>
-                                 <strong>已清理:</strong> 自动移除 &format=webp&quality=lossless 参数` : ''}
+                            ${data.character_book.entries.map((entry, index) => `
+                                <div style="margin-bottom: 15px; padding: 10px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; border-left: 3px solid var(--primary-color);">
+                                    <div style="font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                                        条目 ${index + 1}
+                                    </div>
+                                    ${entry.keys && entry.keys.length > 0 ? `
+                                        <div style="margin-bottom: 5px;">
+                                            <strong>关键词:</strong> ${entry.keys.map(key => this.escapeHtml(key)).join(', ')}
+                                        </div>
+                                    ` : ''}
+                                    ${entry.comment ? `
+                                        <div style="margin-bottom: 5px;">
+                                            <strong>备注:</strong> ${this.escapeHtml(entry.comment)}
+                                        </div>
+                                    ` : ''}
+                                    ${entry.content ? `
+                                        <div>
+                                            <strong>内容:</strong><br>
+                                            <div style="margin-top: 5px; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.9em; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px;">
+                                                ${this.escapeHtml(entry.content)}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
                     ` : ''}
                     
                     <div class="character-field">
-                        <div class="field-label">💾 操作</div>
-                        <div class="field-value">
-                            <button id="saveImageButton" class="parse-button" style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); margin-right: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.9em;">
-                                📥 保存图片
-                            </button>
-                            <button id="saveJsonButton" class="parse-button" style="background: linear-gradient(135deg, var(--accent-color) 0%, #0891b2 100%); margin-right: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.9em;">
-                                💾 保存JSON
-                            </button>
-                            <button id="copyJsonButton" class="parse-button" style="background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.9em;">
-                                📋 复制JSON
-                            </button>
-                        </div>
+                        <div class="field-label">📋 格式版本</div>
+                        <div class="field-value">${isV3 ? 'V3 (chara_card_v3)' : 'V2 (chara_card_v2)'}</div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="raw-data">
-                <div class="raw-data-title">📄 原始JSON数据</div>
-                <div class="json-display" id="jsonDisplay">${this.syntaxHighlight(JSON.stringify(characterData, null, 2))}</div>
             </div>
         `;
 
@@ -540,24 +526,6 @@ class CharacterCardParser {
         this.bindAvatarClick();
     }
 
-    syntaxHighlight(json) {
-        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-            let cls = 'number';
-            if (/^"/.test(match)) {
-                if (/:$/.test(match)) {
-                    cls = 'key';
-                } else {
-                    cls = 'string';
-                }
-            } else if (/true|false/.test(match)) {
-                cls = 'boolean';
-            } else if (/null/.test(match)) {
-                cls = 'null';
-            }
-            return '<span class="' + cls + '">' + match + '</span>';
-        });
-    }
 
     escapeHtml(text) {
         if (typeof text !== 'string') return text;
@@ -567,6 +535,12 @@ class CharacterCardParser {
     }
 
     showLoading() {
+        // 显示result-header区域
+        const resultHeader = document.querySelector('.result-header');
+        if (resultHeader) {
+            resultHeader.style.display = 'block';
+        }
+        
         this.resultContent.innerHTML = `
             <div class="loading">
                 <div class="spinner"></div>
@@ -577,8 +551,12 @@ class CharacterCardParser {
     }
 
     showSuccess(message = '解析成功') {
-        this.resultStatus.textContent = message;
-        this.resultStatus.className = 'result-status status-success';
+        // 隐藏result-header区域
+        const resultHeader = document.querySelector('.result-header');
+        if (resultHeader) {
+            resultHeader.style.display = 'none';
+        }
+        
         this.showToast(message, 'success');
     }
 
@@ -606,6 +584,12 @@ class CharacterCardParser {
     }
 
     showError(message) {
+        // 显示result-header区域
+        const resultHeader = document.querySelector('.result-header');
+        if (resultHeader) {
+            resultHeader.style.display = 'block';
+        }
+        
         this.resultContent.innerHTML = `
             <div class="error-message">
                 <strong>❌ 解析失败</strong><br>
@@ -688,81 +672,6 @@ class CharacterCardParser {
         this.resultSection.classList.add('show');
     }
 
-    runTest() {
-        console.log('🧪 开始测试解析器...');
-        
-        // 创建一个测试用的角色卡数据
-        const testCharacterData = {
-            spec: 'chara_card_v2',
-            spec_version: '2.0',
-            data: {
-                name: '测试角色',
-                description: '这是一个测试角色，用于验证解析器功能。',
-                personality: '友好、好奇、乐于助人',
-                scenario: '在一个充满魔法的世界中',
-                first_mes: '你好！我是测试角色，很高兴见到你！',
-                creator: '解析器测试',
-                character_version: '1.0',
-                tags: ['测试', '示例', '解析器'],
-                extensions: {}
-            }
-        };
-
-        // 测试Base64编码/解码
-        try {
-            const jsonString = JSON.stringify(testCharacterData);
-            console.log('测试JSON字符串:', jsonString);
-            
-            const base64Encoded = btoa(unescape(encodeURIComponent(jsonString)));
-            console.log('Base64编码结果:', base64Encoded);
-            
-            const decoded = this.base64ToUtf8(base64Encoded);
-            console.log('Base64解码结果:', decoded);
-            
-            const parsed = JSON.parse(decoded);
-            console.log('JSON解析结果:', parsed);
-            
-            this.showTestResult('✅ 解析器测试通过！所有功能正常工作。', 'success');
-        } catch (error) {
-            console.error('测试失败:', error);
-            this.showTestResult('❌ 解析器测试失败: ' + error.message, 'error');
-        }
-    }
-
-    showTestResult(message, type) {
-        this.resultContent.innerHTML = `
-            <div class="character-info">
-                <div class="character-details" style="grid-column: 1 / -1;">
-                    <div class="character-name">🧪 解析器测试结果</div>
-                    <div class="character-field">
-                        <div class="field-label">测试状态</div>
-                        <div class="field-value" style="color: ${type === 'success' ? '#4caf50' : '#f44336'}; font-weight: bold;">
-                            ${message}
-                        </div>
-                    </div>
-                    <div class="character-field">
-                        <div class="field-label">测试项目</div>
-                        <div class="field-value">
-                            • JSON序列化/反序列化<br>
-                            • Base64编码/解码<br>
-                            • UTF-8文本处理<br>
-                            • 错误处理机制
-                        </div>
-                    </div>
-                    <div class="character-field">
-                        <div class="field-label">调试信息</div>
-                        <div class="field-value">
-                            请打开浏览器开发者工具的控制台查看详细的调试信息。
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        this.resultStatus.textContent = type === 'success' ? '测试通过' : '测试失败';
-        this.resultStatus.className = `result-status status-${type}`;
-        this.resultSection.classList.add('show');
-    }
 
     bindSaveEvents(characterData, imageInfo) {
         // 保存图片按钮
@@ -917,14 +826,14 @@ class CharacterCardParser {
         try {
             // 检查是否是Discord链接
             if (url.includes('discordapp.net') || url.includes('discord.com')) {
-                // 只移除 &format=webp&quality=lossless 参数
+                // 移除从 &format=webp 开始的所有参数
                 let cleanUrl = url;
                 
-                // 移除 &format=webp&quality=lossless
-                cleanUrl = cleanUrl.replace(/&format=webp&quality=lossless/g, '');
-                
-                // 如果URL以 & 结尾，也移除它
-                cleanUrl = cleanUrl.replace(/&$/, '');
+                // 查找 &format=webp 的位置，如果找到则截取到该位置之前
+                const formatIndex = cleanUrl.indexOf('&format=webp');
+                if (formatIndex !== -1) {
+                    cleanUrl = cleanUrl.substring(0, formatIndex);
+                }
                 
                 if (cleanUrl !== url) {
                     console.log('清理Discord URL参数:', url, '->', cleanUrl);
