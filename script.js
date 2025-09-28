@@ -243,15 +243,15 @@ class CharacterCardParser {
             const data = new Uint8Array(arrayBuffer);
             
             // 首先尝试使用更简单的方法查找文本块
-            const textChunks = this.findTextChunksSimple(data);
+            let textChunks = this.findTextChunksSimple(data);
             
             if (textChunks.length === 0) {
                 // 如果简单方法失败，尝试完整解析
-                const textChunks2 = this.extractTextChunks(data);
-                if (textChunks2.length === 0) {
-                    throw new Error('PNG文件中未找到文本块');
-                }
-                textChunks.push(...textChunks2);
+                textChunks = this.extractTextChunks(data);
+            }
+
+            if (textChunks.length === 0) {
+                throw new Error('PNG文件中未找到文本块');
             }
 
             console.log('找到的文本块:', textChunks.map(chunk => ({
