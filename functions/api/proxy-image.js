@@ -50,7 +50,7 @@ export async function onRequest(context) {
     console.log('代理请求图片:', cleanUrl);
 
     // 请求目标图片
-    const response = await fetch(cleanUrl, {
+    const fetchResponse = await fetch(cleanUrl, {
       method: 'GET',
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -62,18 +62,18 @@ export async function onRequest(context) {
       signal: AbortSignal.timeout(30000) // 30秒超时
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    if (!fetchResponse.ok) {
+      throw new Error(`HTTP ${fetchResponse.status}: ${fetchResponse.statusText}`);
     }
 
     // 检查响应类型
-    const contentType = response.headers.get('content-type') || '';
+    const contentType = fetchResponse.headers.get('content-type') || '';
     if (!contentType.startsWith('image/')) {
       throw new Error('响应不是图片格式');
     }
 
     // 获取图片数据
-    const imageBuffer = await response.arrayBuffer();
+    const imageBuffer = await fetchResponse.arrayBuffer();
     
     // 检查文件大小（限制为10MB）
     const maxSize = 10 * 1024 * 1024; // 10MB
