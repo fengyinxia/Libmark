@@ -187,6 +187,9 @@ class CharacterCardParser {
             return;
         }
 
+        // 清理Discord链接参数，避免WebP格式问题
+        url = this.cleanDiscordUrl(url);
+
         // 简单的URL验证
         try {
             new URL(url);
@@ -198,8 +201,18 @@ class CharacterCardParser {
         this.showLoading();
         
         try {
-            // 使用Pages Functions代理获取图片，带重试机制
-            const arrayBuffer = await this.fetchImageWithRetry(url);
+            // 直接使用fetch获取图片，然后解析
+            const response = await fetch(url, {
+                method: 'GET',
+                mode: 'cors',
+                cache: 'no-cache'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const arrayBuffer = await response.arrayBuffer();
             const characterData = this.extractCharacterData(arrayBuffer);
             
             if (characterData) {
@@ -212,7 +225,7 @@ class CharacterCardParser {
                     url: url,
                     originalUrl: this.urlInput.value.trim(), // 保存原始URL
                     size: arrayBuffer.byteLength,
-                    contentType: 'image/png',
+                    contentType: response.headers.get('content-type') || 'image/png',
                     fileName: this.getFilenameFromUrl(url) || 'character.png',
                     hasCharacterData: true
                 };
@@ -843,56 +856,6 @@ class CharacterCardParser {
         } catch {
             return 'character.png';
         }
-    }
-
-    /**
-     * 带重试机制的图片获取方法
-     */
-    async fetchImageWithRetry(url, maxRetries = 3) {
-        let lastError;
-        
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                console.log(`尝试获取图片 (第${attempt}次):`, url);
-                
-                // 使用Pages Functions代理获取图片
-                const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`;
-                const response = await fetch(proxyUrl, {
-                    method: 'GET',
-                    cache: 'no-cache',
-                    signal: AbortSignal.timeout(30000) // 30秒超时
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const arrayBuffer = await response.arrayBuffer();
-                
-                // 检查文件大小
-                if (arrayBuffer.byteLength === 0) {
-                    throw new Error('图片文件为空');
-                }
-                
-                console.log(`图片获取成功 (第${attempt}次):`, arrayBuffer.byteLength, 'bytes');
-                return arrayBuffer;
-                
-            } catch (error) {
-                lastError = error;
-                console.warn(`第${attempt}次尝试失败:`, error.message);
-                
-                // 如果不是最后一次尝试，等待后重试
-                if (attempt < maxRetries) {
-                    const delay = Math.pow(2, attempt - 1) * 1000; // 指数退避: 1s, 2s, 4s
-                    console.log(`等待 ${delay}ms 后重试...`);
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-            }
-        }
-        
-        // 所有重试都失败了
-        throw new Error(`图片获取失败 (已重试${maxRetries}次): ${lastError.message}`);
     }
 }
 
